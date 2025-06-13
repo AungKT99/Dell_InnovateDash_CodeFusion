@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />    
+    <link rel="stylesheet" href="../CSS/onboarding.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">Empower+</div>
+    <nav>
+      <a href="Index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="community.html">Community</a>
+      <a href="challenges.html">Challenges</a>
+    </nav>
+  </header>
+  <div class="onboarding-box">
+    <h2>Let’s personalize your wellness journey</h2>
+
+    <!-- Step Containers -->
+    <div class="step" id="step-1">
+      <div class="question">
+        <strong>What is your age group?</strong>
+        <div class="options">
+          <div class="option">Under 25</div>
+          <div class="option">25–34</div>
+          <div class="option">35–44</div>
+          <div class="option">45–54</div>
+          <div class="option">55–64</div>
+        </div>
+      </div>
+      <div class="question">
+        <strong>What is your gender?</strong>
+        <div class="options">
+          <div class="option">Male</div>
+          <div class="option">Female</div>
+          <div class="option">Prefer not to say</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step hidden" id="step-2">
+      <div class="question">
+        <strong>Do you currently smoke?</strong>
+        <div class="options">
+          <div class="option">Yes</div>
+          <div class="option">Occasionally</div>
+          <div class="option">No</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <strong>How often do you consume fruits and vegetables?</strong>
+        <div class="options">
+          <div class="option">Rarely</div>
+          <div class="option">1–2 servings a day</div>
+          <div class="option">3+ servings a day</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <strong>How many days a week are you physically active (30 min or more)?</strong>
+        <div class="options">
+          <div class="option">0 days</div>
+          <div class="option">1–2 days</div>
+          <div class="option">3–5 days</div>
+          <div class="option">6+ days</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step hidden" id="step-3">
+      <div class="question">
+        <strong>Has anyone in your immediate family been diagnosed with cancer?</strong>
+        <div class="options">
+          <div class="option">Yes</div>
+          <div class="option">No</div>
+          <div class="option">Not sure</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step hidden" id="step-4">
+      <div class="question">
+        <strong>How do you currently feel about going for health screenings?</strong>
+        <div class="options">
+          <div class="option">I avoid them—better not to know</div>
+          <div class="option">I procrastinate</div>
+          <div class="option">I need reminders</div>
+          <div class="option">I go regularly</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <strong>What motivates you most to stay healthy?</strong>
+        <div class="options">
+          <div class="option">My family and loved ones</div>
+          <div class="option">My future goals and career</div>
+          <div class="option">My independence and freedom</div>
+          <div class="option">I don’t think much about it</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <strong>Which statement best describes your current approach to health?</strong>
+        <div class="options">
+          <div class="option">I don’t think about it unless something’s wrong</div>
+          <div class="option">I want to start taking better care</div>
+          <div class="option">I’m taking small steps</div>
+          <div class="option">I actively track and improve</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <button id="backBtn" class="btn" onclick="prevStep()">← Back</button>
+      <button class="btn" onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+  <script src="../JS/onboarding.js"></script>
+</body>
+</html>
