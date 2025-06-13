@@ -1,0 +1,173 @@
+/* Base styles */
+body {
+  margin: 0;
+  background-color: #fff8fc;
+  font-family: 'Segoe UI', sans-serif;
+  color: #2d2d2d;
+}
+
+/* Dashboard container */
+.dashboard {
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.dashboard-container {
+  background-color: white;
+  width: 100%;
+  max-width: 1000px;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Timeline */
+.health-journey-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.health-journey-section {
+  margin-bottom: 40px;
+}
+
+.journey-header h2 {
+  margin: 0;
+  color: #b0004e;
+}
+
+.journey-header p {
+  margin-top: 6px;
+  color: #555;
+  font-size: 14px;
+}
+
+.timeline-track {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 20px 0;
+  scroll-snap-type: x mandatory;
+}
+
+.day-card {
+  flex: 0 0 45%; /* Only 2 cards fit */
+  background-color: white;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: opacity 0.3s ease;
+}
+
+.day-card h3 {
+  color: #6a0dad;
+}
+
+.day-card ul {
+  padding-left: 0;
+  list-style: none;
+  font-size: 15px;
+  color: #333;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ========================
+   Shared Layout (Top rectangles)
+======================== */
+.top-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 40px;
+}
+
+.health-journey-card,
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 380px;
+  border-radius: 16px;
+  background-color: white;
+  padding: 30px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================
+   Left: Health Journey
+======================== */
+.health-journey-card {
+  flex: 2;
+}
+
+/* ========================
+   Right: Circle Progress Ring (Pure CSS)
+======================== */
+.progress-header {
+  margin-bottom: 20px;
+}
+
+.progress-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 20px;
+  color: #b0004e;
+}
+
+.progress-card {
+  flex: 1;
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; 
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  min-height: 380px;
+}
+
+.circle-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle-ring {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(orange 0%, #eee 0%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: background 0.8s ease-in-out;
+}
+
+.circle-center {
+  width: 70%;
+  height: 70%;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#progressText {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}

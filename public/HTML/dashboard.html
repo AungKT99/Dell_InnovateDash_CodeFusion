@@ -1,20 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="../CSS/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Empower+ Dashboard</title>
+  <link rel="stylesheet" href="../CSS/styles.css" />
+  <link rel="stylesheet" href="../CSS/dashboard.css" />
 </head>
 <body>
+
   <header>
     <div class="logo">Empower+</div>
     <nav>
-      <a href="Index.html">Home</a>
+      <a href="index.html">Home</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="community.html">Community</a>
-      <a href="challenges.html">Challenges</a>
+      <a href="challenge.html">Challenges</a>
     </nav>
   </header>
+
+  <main class="dashboard">
+    <div class="dashboard-container">
+
+      <div class="top-row">
+        <!-- Left: Health Journey -->
+        <div class="health-journey-card">
+          <div class="journey-header">
+            <h2>Your Health Journey</h2>
+            <p>A 7-day personalized health journey</p>
+          </div>
+
+          <div class="timeline-track" id="timelineTrack">
+            <!-- Day 1 -->
+            <div class="day-card" data-day="1">
+              <h3>Day 1</h3>
+              <ul>
+                <li><input type="checkbox" onchange="checkTasks(1)"> Learn about free screenings</li>
+                <li><input type="checkbox" onchange="checkTasks(1)"> Watch myth-busting video</li>
+              </ul>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="day-card hidden" data-day="2">
+              <h3>Day 2</h3>
+              <ul>
+                <li><input type="checkbox" onchange="checkTasks(2)"> Do 3-min self-reflection</li>
+                <li><input type="checkbox" onchange="checkTasks(2)"> Mark why screening matters</li>
+              </ul>
+            </div>
+
+            <!-- Add more days as needed -->
+          </div>
+        </div>
+
+        <!-- Right: Progress Ring -->
+        <div class="progress-card">
+          <h2 class="progress-title">Journey Progress</h2>
+          <div class="circle-wrapper">
+            <div class="circle-ring" id="progressRing">
+              <div class="circle-center">
+                <span id="progressText">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../JS/dashboard.js"></script>
 </body>
 </html>

@@ -17,12 +17,13 @@ function showStep(step) {
 }
 
 function nextStep() {
-  if (currentStep < totalSteps) {
-    currentStep++;
-    showStep(currentStep);
-  } else {
-    alert("🎉 You're done! (Next: show persona)");
-  }
+    if (currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      // Redirect to persona result page
+      window.location.href = "persona.html";
+    }
 }
 
 function prevStep() {
