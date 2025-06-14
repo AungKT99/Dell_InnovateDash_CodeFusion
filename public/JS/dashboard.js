@@ -27,7 +27,6 @@ function updateProgressRing() {
   });
 
   const targetPercent = Math.round((completedDays / totalDays) * 100);
-
   if (targetPercent === lastProgressPercent) return;
 
   let currentPercent = lastProgressPercent;
@@ -41,16 +40,14 @@ function updateProgressRing() {
       clearInterval(animate);
     } else {
       currentPercent += step;
-      ring.style.background = `conic-gradient(orange ${currentPercent}%, #eee ${currentPercent}%)`;
+      // Gradient fill from purple to pink to grey
+      ring.style.background = `conic-gradient(#6a0dad ${currentPercent * 0.5}%, #b0004e ${currentPercent}%, #eee ${currentPercent}%)`;
       text.textContent = `${currentPercent}%`;
     }
   }, interval);
 
-  // Update global tracker
   lastProgressPercent = targetPercent;
 }
 
-
-// Initialize with 0% progress
+// Initialize on page load
 window.onload = updateProgressRing;
-

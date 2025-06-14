@@ -14,12 +14,45 @@ body {
 }
 
 .dashboard-container {
-  background-color: white;
+  background: linear-gradient(to right, #ffe9f0, #f3e1ff);
   width: 100%;
   max-width: 1350px;
   padding: 40px;
   border-radius: 20px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.box,
+.progress-card,
+.health-journey-card {
+  background: linear-gradient(to bottom right, #ffffff, #fff8fc);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.btn-duo {
+  background-color: #b0004e;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-duo:hover {
+  background-color: #8e003b;
+  transform: scale(1.03);
+}
+
+.btn-duo.outline {
+  background: transparent;
+  color: #b0004e;
+  border: 2px solid #b0004e;
+}
+
+.btn-duo.outline:hover {
+  background-color: #fce4ec;
 }
 
 /* Timeline */
@@ -147,7 +180,7 @@ body {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: conic-gradient(orange 0%, #eee 0%);
+  background: conic-gradient(#eee 0% 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -334,9 +367,10 @@ body {
 
 .duo-progress-fill {
   height: 100%;
-  background-color: #6a0dad;
+  background: linear-gradient(to right, #6a0dad, #b0004e);
   transition: width 0.4s ease;
 }
+
 
 /* Reminders Box */
 .reminders-box {
