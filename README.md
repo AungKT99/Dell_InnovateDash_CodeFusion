@@ -1,6 +1,6 @@
 ### 📁 Project Structure: SCS Web App (MERN Stack)
 ```
-scs-webapp/
+project_root/
 │
 ├── backend/                    # Node.js + Express + MongoDB + JWT + Google OAuth
 │   ├── config/                 # DB & Passport setup
