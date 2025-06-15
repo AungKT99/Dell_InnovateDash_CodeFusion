@@ -1,24 +1,27 @@
-# 📁 Project Structure: SCS Web App (MERN Stack)
-
-Project_root/
+### 📁 Project Structure: SCS Web App (MERN Stack)
+```
+scs-webapp/
 │
 ├── backend/                    # Node.js + Express + MongoDB + JWT + Google OAuth
-│   ├── config/                 # DB & passport setup
+│   ├── config/                 # DB & Passport setup
 │   ├── controllers/            # Auth/business logic
-│   ├── middleware/             # JWT middleware etc.
-│   ├── models/                 # Mongoose models
-│   ├── routes/                 # Express routes
+│   ├── middleware/             # JWT auth protection
+│   ├── models/                 # Mongoose schemas
+│   ├── routes/                 # Express route handlers
 │   ├── server.js               # Entry point
-│   └── .env
+│   ├── .env                    # Environment variables
+│   └── package.json            # Backend dependencies
 │
-├── frontend/                   # HTML, CSS, React.js
+├── frontend/                   # React app (UI)
 │   ├── public/                 # Static assets
 │   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   ├── pages/              # Page views (e.g., Home, Dashboard)
+│   │   ├── components/         # Reusable components (buttons, forms, etc)
+│   │   ├── pages/              # Page views (Home, Dashboard, etc)
 │   │   ├── api/                # Functions to call backend APIs
-│   │   └── App.js              # Main React app
-│   ├── package.json
-│   └── .env                   # Frontend config (e.g. API URL)
+│   │   └── App.js              # Main React entry
+│   │
+│   ├── .env                    # API URL for frontend
+│   ├── package.json            # Frontend dependencies
+│   └── vite.config.js          # or next.config.js
 │
-
+└── README.md                   # Project description
