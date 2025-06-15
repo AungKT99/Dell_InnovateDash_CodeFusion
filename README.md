@@ -9,7 +9,7 @@ project_root/
 │   ├── models/                 # Mongoose schemas
 │   ├── routes/                 # Express route handlers
 │   ├── server.js               # Entry point
-│   ├── .env                    # Environment variables
+│   ├── .env                    # Environment variables and  #SECRETS 
 │   └── package.json            # Backend dependencies
 │
 ├── frontend/                   # React app (UI)
@@ -20,8 +20,7 @@ project_root/
 │   │   ├── api/                # Functions to call backend APIs
 │   │   └── App.js              # Main React entry
 │   │
-│   ├── .env                    # API URL for frontend
+│   ├── .env                    # API URL for frontend #SECRETS 
 │   ├── package.json            # Frontend dependencies
-│   └── vite.config.js          # or next.config.js
 │
 └── README.md                   # Project description
