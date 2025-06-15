@@ -2,25 +2,25 @@
 ```
 project_root/
 │
-├── backend/                    # Node.js + Express + MongoDB + JWT + Google OAuth
-│   ├── config/                 # DB & Passport setup
-│   ├── controllers/            # Auth/business logic
-│   ├── middleware/             # JWT auth protection
-│   ├── models/                 # Mongoose schemas
-│   ├── routes/                 # Express route handlers
-│   ├── server.js               # Entry point
-│   ├── .env                    # Environment variables and  #SECRETS 
-│   └── package.json            # Backend dependencies
+├── backend/                    # 🔙 Backend (server-side code)
+│   ├── config/                 # 📡 Setup files (e.g. connect to MongoDB or Google login)
+│   ├── controllers/            # 🧠 Functions that handle what each route should do ((e.g. save user in registerUser())
+│   ├── middleware/             # 🛡 Code that runs before certain routes (e.g. checking login token)
+│   ├── models/                 # 🗃 MongoDB database structure (e.g. user data shape)
+│   ├── routes/                 # 🚏 Define Backend URLs (e.g. POST /api/register → registerUser)
+│   ├── server.js               # 🚀 Main backend file — starts the server and connects everything
+│   ├── .env                    # 🔐 Secrets (DB password, API keys, etc)
+│   └── package.json            # 📦 Lists what packages are used (express, mongoose, etc)
 │
-├── frontend/                   # React app (UI)
-│   ├── public/                 # Static assets
-│   ├── src/
-│   │   ├── components/         # Reusable components (buttons, forms, etc)
-│   │   ├── pages/              # Page views (Home, Dashboard, etc)
-│   │   ├── api/                # Functions to call backend APIs
-│   │   └── App.js              # Main React entry
+├── frontend/                   # 🎨 Frontend (the UI people see)
+│   ├── public/                 # 🗂 The base HTML file and static files like images
+│   ├── src/                    # 📁 All main code for the website
+│   │   ├── components/         # 🧩 Reusable parts like buttons, forms, headers, etc.
+│   │   ├── pages/              # 📄 Different pages (e.g. Home, Signup, Dashboard)
+│   │   ├── api/                # 🔌 Functions to talk to the backend (e.g. register user)
+│   │   └── App.js              # 🧠 Connects all pages and routes together
 │   │
-│   ├── .env                    # API URL for frontend #SECRETS 
-│   ├── package.json            # Frontend dependencies
+│   ├── .env                    # 🌐 Stores backend URL for API calls
+│   ├── package.json            # 📦 Lists packages used in frontend (like React, Axios)
 │
-└── README.md                   # Project description
+└── README.md                   # 📘 Overview of the whole project (this file)
