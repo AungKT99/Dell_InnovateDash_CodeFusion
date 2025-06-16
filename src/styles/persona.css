@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff8fc;
+  min-height: 100vh;
+  color: #2d2d2d;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  min-height: calc(100vh - 100px);
+}
+
+.persona-card {
+  text-align: center;
+  background-color: white;
+  padding: 60px 40px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 90%;
+}
+
+.persona-card h1 {
+  color: #b0004e;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.persona-card .highlight {
+  color: #6a0dad;
+  font-weight: bold;
+}
+
+.persona-image img {
+  width: 240px;
+  height: auto;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.description {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+}
