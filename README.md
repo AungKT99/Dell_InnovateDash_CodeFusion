@@ -18,6 +18,7 @@ project_root/
 │   │   ├── components/         # 🧩 Reusable parts like buttons, forms, headers, etc.
 │   │   ├── pages/              # 📄 Different pages (e.g. Home, Signup, Dashboard)
 │   │   ├── api/                # 🔌 Functions to talk to the backend (e.g. register user)
+│   │   ├── contexts/           # 🧠 Shares important data across pages (e.g. user info, app settings)
 │   │   └── App.js              # 🧠 Connects all pages and routes together
 │   │
 │   ├── .env                    # 🌐 Stores backend URL for API calls
