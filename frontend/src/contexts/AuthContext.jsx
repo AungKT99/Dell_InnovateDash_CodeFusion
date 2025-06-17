@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { authAPI } from '../api/userApi';
 
 const AuthContext = createContext();
 
@@ -12,38 +12,28 @@ export const useAuth = () => {
   return context;
 };
 
-// Configure axios defaults
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Set auth token in axios headers
-  const setAuthToken = (token) => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem('token', token);
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-      localStorage.removeItem('token');
-    }
-  };
-
   // Register function
   const register = async (userData) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/register', userData);
+      const result = await authAPI.register(userData);
       
-      const { user, token } = response.data;
-      setUser(user);
-      setAuthToken(token);
+      if (result.success) {
+        const { user, token } = result.data;
+        setUser(user);
+        authAPI.setAuthToken(token);
+      } else {
+        setError(result.error);
+      }
       
-      return { success: true, data: response.data };
+      return result;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = 'Registration failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -53,15 +43,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/login', credentials);
+      const result = await authAPI.login(credentials);
       
-      const { user, token } = response.data;
-      setUser(user);
-      setAuthToken(token);
+      if (result.success) {
+        const { user, token } = result.data;
+        setUser(user);
+        authAPI.setAuthToken(token);
+      } else {
+        setError(result.error);
+      }
       
-      return { success: true, data: response.data };
+      return result;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = 'Login failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -70,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     setUser(null);
-    setAuthToken(null);
+    authAPI.removeAuthToken();
   };
 
   // Load user from token on app start
@@ -78,17 +72,33 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     
     if (token) {
-      setAuthToken(token);
-      try {
-        const response = await axios.get('/api/auth/me');
-        setUser(response.data.user);
-      } catch (error) {
-        console.error('Failed to load user:', error);
+      authAPI.setAuthToken(token);
+      
+      const result = await authAPI.getCurrentUser();
+      
+      if (result.success) {
+        setUser(result.data.user);
+      } else {
+        console.error('Failed to load user:', result.error);
         // Token might be invalid, remove it
-        setAuthToken(null);
+        authAPI.removeAuthToken();
       }
     }
+    
     setLoading(false);
+  };
+
+  // Refresh user data (useful for profile updates)
+  const refreshUser = async () => {
+    const result = await authAPI.getCurrentUser();
+    
+    if (result.success) {
+      setUser(result.data.user);
+      return result;
+    } else {
+      setError(result.error);
+      return result;
+    }
   };
 
   // Load user on component mount
@@ -103,6 +113,7 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    refreshUser,
     setError
   };
 

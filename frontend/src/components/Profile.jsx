@@ -5,12 +5,12 @@ import '../styles/styles.css';
 import '../styles/profile.css';
 
 const Profile = () => {
-
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
   };
+
   return (
     <div>
       <header>
@@ -28,7 +28,7 @@ const Profile = () => {
         {/* User Header */}
         <section className="profile-header">
           <img src="/assets/curious-explorer.png" alt="Persona" className="profile-pic" />
-          <h1 className="username">Jamie Tan</h1>
+          <h1 className="username">{user?.name || 'User'}</h1>
           <p className="persona-label">Persona: Curious Explorer 🧭</p>
 
           <button
@@ -71,4 +71,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;
