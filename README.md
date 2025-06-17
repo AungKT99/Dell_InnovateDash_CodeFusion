@@ -27,9 +27,9 @@ project_root/
 └── README.md                   # 📘 Overview of the whole project (this file)
 ```
 
-# How to Run the SCS Web App (MERN Stack)
+## How to Run the SCS Web App (MERN Stack)
 This guide will help you run the application locally on your machine. <br>
-## ✅ Prerequisites
+### ✅ Prerequisites
 
 Make sure you have the following installed:
 
