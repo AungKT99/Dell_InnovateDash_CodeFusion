@@ -80,8 +80,10 @@ cd fontend
 ```bash
 npm install
 ```
+#### 3.3: Create Environment File
+Also Create a ```.env``` file in the ```fronend/``` folder and copy-paste the **environment variables for frontend**:
 
-#### 3.3: Start the Frontend Server
+#### 3.4: Start the Frontend Server
 ```bash
 npm run dev
 ```
