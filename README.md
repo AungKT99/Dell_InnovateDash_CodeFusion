@@ -37,51 +37,51 @@ Make sure you have the following installed:
 - **npm (comes with Node.js)**
 - **Git**
 
-## Clone the Repository
+### Clone the Repository
 ```bash
 git clone https://github.com/AungKT99/Dell_InnovateDash_CodeFusion.git
 cd Dell_InnovateDash_CodeFusion
 ```
 
-## Backend Setup
-### 2.1: Navigate to Backend Folder
+### Backend Setup
+#### 2.1: Navigate to Backend Folder
 ```bash
 cd backend
 ```
 
-### 2.2: Install Dependencies
+#### 2.2: Install Dependencies
 ```bash
 npm install
 ```
 
-### 2.3: Create Environment File
-Create a ```.env``` file in the ```backend/``` folder and copy-paste the environment variables from the group chat:
+#### 2.3: Create Environment File
+Create a ```.env``` file in the ```backend/``` folder and copy-paste the **environment variables from the group chat**:
 It should include:
 
 - ```MONGODB_URI``` - Database connection string
 - ```JWT_SECRET``` - Secret key for authentication
 - ```PORT``` - Server port 
 
-### 2.4: Start the Backend Server
+#### 2.4: Start the Backend Server
 ```bash
 npm run dev
 ```
 **✅ Backend should now be running at: ```http://localhost:8000```**
 
 
-## Fontend Setup
-### 3.1: Navigate to Frontend Folder
+### Fontend Setup
+#### 3.1: Navigate to Frontend Folder
 Open a new **terminal window/tab** and run:
 ```bash
 cd fontend
 ```
 
-### 3.2: Install Dependecies
+#### 3.2: Install Dependecies
 ```bash
 npm install
 ```
 
-### 3.3: Start the Frontend Server
+#### 3.3: Start the Frontend Server
 ```bash
 npm run dev
 ```
