@@ -27,7 +27,7 @@ project_root/
 └── README.md                   # 📘 Overview of the whole project (this file)
 ```
 
-### How to Run the SCS Web App (MERN Stack)
+# How to Run the SCS Web App (MERN Stack)
 This guide will help you run the application locally on your machine. <br>
 ## ✅ Prerequisites
 
@@ -37,13 +37,13 @@ Make sure you have the following installed:
 - **npm (comes with Node.js)**
 - **Git**
 
-## 1. Clone the Repository
+## Clone the Repository
 ```bash
 git clone https://github.com/AungKT99/Dell_InnovateDash_CodeFusion.git
 cd Dell_InnovateDash_CodeFusion
 ```
 
-## 2. Backend Setup
+## Backend Setup
 ### 2.1: Navigate to Backend Folder
 ```bash
 cd backend
@@ -69,7 +69,7 @@ npm run dev
 **✅ Backend should now be running at: ```http://localhost:8000```**
 
 
-## 3. Fontend Setup
+## Fontend Setup
 ### 3.1: Navigate to Frontend Folder
 Open a new **terminal window/tab** and run:
 ```bash
