@@ -1,8 +1,6 @@
-
 const express = require("express");
 const router = express.Router();
 
-// 正确路径：
 const getBestMatch = require("../services/matcher");
 const generateNaturalResponse = require("../services/ollama");
 
@@ -10,7 +8,8 @@ router.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
 
-router.post("/chat", async (req, res) => {
+// 👇 这里，路由用 "/" 就够了！
+router.post("/", async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) {
     return res.status(400).json({ error: "Missing or empty message." });
