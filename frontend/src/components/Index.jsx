@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/styles.css';
+import ChatbotButton from './ChatbotButton';
+import { useAuth } from '../contexts/AuthContext';
 
 const Index = () => {
+  const { user } = useAuth(); // ✅ check if logged in
+
   return (
     <div>
       <header>
@@ -20,7 +24,10 @@ const Index = () => {
         <div className="hero-content">
           <div className="hero-text">
             <h1>Your Health Journey Starts Here</h1>
-            <p>Empower+ guides you with personalized steps, emotional motivation, and social support. Start transforming your health today.</p>
+            <p>
+              Empower+ guides you with personalized steps, emotional motivation, and social support.
+              Start transforming your health today.
+            </p>
             <div className="hero-buttons">
               <Link to="/onboarding" className="start-btn">Start My Journey</Link>
               <Link to="/faq" className="learn-btn">Learn More</Link>
@@ -53,8 +60,11 @@ const Index = () => {
       <footer>
         &copy; 2025 Empower+ | Made with ❤️ for Singapore Cancer Society
       </footer>
+
+      {/* ✅ Floating Chatbot button only if user is logged in */}
+      {user && <ChatbotButton />}
     </div>
   );
 };
 
-export default Index; 
+export default Index;

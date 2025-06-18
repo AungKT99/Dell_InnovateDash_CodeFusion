@@ -17,6 +17,7 @@ import FAQ from './components/FAQ';
 import Index from './components/Index';
 import Onboarding from './components/Onboarding';
 import Persona from './components/Persona';
+import ChatbotPage from './components/ChatbotPage';
 
 import './index.css';
 
@@ -77,6 +78,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route
+            path="/chatbot"
+            element={
+              <ProtectedRoute>
+                <ChatbotPage />
+              </ProtectedRoute>
+            }
+         />
+
 
           {/* Catch-all: if unknown route, redirect to dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
