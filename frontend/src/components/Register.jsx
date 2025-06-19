@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import API from '../api/userApi';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -72,6 +73,18 @@ const Register = () => {
     });
     
     if (result.success) {
+      // Link quiz attempt after successful signup
+      const attemptId = localStorage.getItem('quizAttemptId');
+      if (attemptId) {
+        try {
+          await API.post('/api/quiz/link-attempt', { attemptId });
+          localStorage.removeItem('quizAttemptId'); // Clean up
+          console.log('Quiz attempt linked to user successfully');
+        } catch (error) {
+          console.error('Error linking quiz:', error);
+          // Don't block user flow if this fails
+        }
+      }
       navigate('/dashboard'); // Redirect to dashboard after successful registration
     }
     

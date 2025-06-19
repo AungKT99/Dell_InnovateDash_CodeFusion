@@ -3,13 +3,18 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 
+
 // Import routes
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/authRoutes'); //Auth Rout
+const quizRoutes = require('./routes/quiz'); //Quiz Rout
 
 // Connect to database
 connectDB();
 
 const app = express();
+
+// Trust proxy for IP address tracking (needed for quiz analytics)
+app.set('trust proxy', true);
 
 // Middleware
 app.use(cors({
@@ -22,6 +27,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
