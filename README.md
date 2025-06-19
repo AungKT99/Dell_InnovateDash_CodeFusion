@@ -42,6 +42,10 @@ Make sure you have the following installed:
 git clone https://github.com/AungKT99/Dell_InnovateDash_CodeFusion.git
 cd Dell_InnovateDash_CodeFusion
 ```
+switch to ```main```branch
+```bash
+git checkout main
+```
 
 ### Backend Setup
 #### 2.1: Navigate to Backend Folder
