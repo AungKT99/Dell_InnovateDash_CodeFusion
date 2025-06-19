@@ -17,6 +17,7 @@ import FAQ from './components/FAQ';
 import Index from './components/Index';
 import Onboarding from './components/Onboarding';
 import Persona from './components/Persona';
+import KnowledgeQuiz from './components/KnowledgeQuiz'; 
 
 import './index.css';
 
@@ -30,6 +31,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/knowledge_quiz" element={<KnowledgeQuiz />} /> 
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/persona" element={<Persona />} />
           <Route path="/faq" element={<FAQ />} />
