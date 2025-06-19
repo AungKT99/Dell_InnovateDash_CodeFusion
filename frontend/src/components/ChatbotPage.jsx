@@ -16,7 +16,7 @@ const ChatbotPage = () => {
     try {
       const res = await API.post('/api/chat', { message: input });
       const cleanedReply = res.data.reply.replace(
-        /^Here['’]s a rewritten version with a more conversational and kind tone:\s*/i,
+        /^Here['']s a rewritten version with a more conversational and kind tone:\s*/i,
         ''
       );
       const botMsg = { sender: 'bot', text: cleanedReply };
@@ -52,12 +52,15 @@ const ChatbotPage = () => {
             className={`mb-2 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}
           >
             <span
-              className={`inline-block p-2 rounded text-white ${
-                msg.sender === 'user' ? 'bg-blue-200 text-black' : 'bg-[#a30059]'
-              }`}
-           >
+               className={`inline-block p-2 rounded ${
+                 msg.sender === 'user'
+                  ? 'bg-[#0078D4] text-white'   // ✅ clean, readable user messages
+                  : 'bg-[#a30059] text-white'     // ✅ bot messages stay pink and white
+             }`}
+            >
               {msg.text}
-           </span>
+            </span>
+
          </div>
        ))}
      </div>

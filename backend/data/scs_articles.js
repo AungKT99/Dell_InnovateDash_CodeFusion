@@ -298,6 +298,18 @@ Symptoms and treatments vary, so ask your doctor or check trusted sources for mo
 https://www.nccs.com.sg/patient-care/conditions-treatments
   `.trim(),
 
+  //types of cancer screening
+  "How Many Screening Packages Are There": `
+There are several main cancer screening tests offered in Singapore:
+- **FIT kit** for colorectal cancer
+- **Mammogram** for breast cancer
+- **Pap smear** and **HPV test** for cervical cancer
+- **PSA blood test** for prostate cancer
+
+Each is considered a different screening package and is offered based on age, gender, and risk.
+`.trim(),
+
+
   // 
   "Cancer Myths": "Myth: Only old people get cancer. Fact: It affects all ages.",
   "Genetic Risk of Cancer": "Some cancers like breast and colorectal cancer are hereditary. About 5-10% of cancers are caused by inherited genetic mutations. Genetic testing may help if you have a strong family history, but always consult your doctor first.",

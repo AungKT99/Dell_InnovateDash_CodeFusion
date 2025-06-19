@@ -1,38 +1,45 @@
 const express = require("express");
 const router = express.Router();
 
-const getBestMatch = require("../services/matcher");
-const generateNaturalResponse = require("../services/ollama");
+// Updated imports
+const getBestMatch = require("../services/matcher"); // enhanced matcher with multi-topic support
+const generateNaturalResponse = require("../services/openai"); // switched from ollama to openai
 
+// Health check
 router.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
 
-// 👇 这里，路由用 "/" 就够了！
+// Chat endpoint
 router.post("/", async (req, res) => {
   const { message } = req.body;
+
   if (!message || !message.trim()) {
     return res.status(400).json({ error: "Missing or empty message." });
   }
 
-  const { topic, fact, confidence } = getBestMatch(message);
+  //  Match best articles
+  const { topics, facts, confidence } = getBestMatch(message);
 
-  if (topic === "Out of Scope") {
+  // Out-of-scope handling
+  if (topics.includes("Out of Scope")) {
     return res.json({
       reply: "I'm here to help with topics related to cancer awareness and SCS services.",
-      topic,
+      topic: "Out of Scope",
       original_fact: "",
-      confidence: Number(confidence.toFixed(4)),
+      confidence
     });
   }
 
-  const ollamaReply = await generateNaturalResponse(fact);
+  // Generate response with OpenAI
+  const combinedFact = facts[0]; // facts is an array with 1 combined string
+  const openaiReply = await generateNaturalResponse(message, combinedFact);
 
   res.json({
-    reply: ollamaReply,
-    topic,
-    original_fact: fact,
-    confidence: Number(confidence.toFixed(4)),
+    reply: openaiReply,
+    topic: topics.join(", "),
+    original_fact: combinedFact,
+    confidence
   });
 });
 
