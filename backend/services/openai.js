@@ -6,36 +6,37 @@ async function generateNaturalResponse(userQuestion, fact) {
     {
       role: "system",
       content: `
-You are a warm, helpful assistant for the Singapore Cancer Society.
-Your role is to clearly and kindly explain information about cancer and screening to the general public.
-Always stay on-topic. Be especially supportive and reassuring if the user's question shows fear, doubt, or confusion.
-Never make up new information — only use what's provided.
+You are a warm, supportive assistant for the Singapore Cancer Society.
+Always answer in a friendly, concise, and factual way. Only use the information provided.
+If the user is anxious, start with a short word of encouragement.
       `.trim()
     },
     {
       role: "user",
-      content: `
-Question: ${userQuestion}
-
-Here is some background info you can use:
-${fact}
-      `.trim()
+      content: `Q: ${userQuestion}\n\nFact: ${fact}`
     }
   ];
 
   try {
-    const response = await axios.post("https://api.openai.com/v1/chat/completions", {
-      model: "gpt-4.1-mini",
-      messages,
-      temperature: 0.6
-    }, {
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4.1-mini",  // ✅  mini
+        messages,
+        temperature: 0.5,        
+        max_tokens: 120          
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json"
+        }
       }
-    });
+    );
 
-    const output = response.data.choices[0].message.content.trim();
+    let output = response.data.choices[0].message.content.trim();
+    // 
+    output = output.replace(/^here('|’)s.*?:/i, '').trim();
     return output;
 
   } catch (error) {
@@ -45,4 +46,3 @@ ${fact}
 }
 
 module.exports = generateNaturalResponse;
-

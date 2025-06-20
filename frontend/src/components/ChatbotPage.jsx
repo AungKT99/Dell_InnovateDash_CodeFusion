@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/userApi'; // Your axios instance
+import { localFAQAnswer } from '../utils/faq';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
@@ -9,24 +10,37 @@ const ChatbotPage = () => {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-
+  
     const userMsg = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMsg]);
-
+  
+    // 1. Check local FAQ first
+    const faqAnswer = localFAQAnswer(input);
+    if (faqAnswer) {
+      setMessages((prev) => [...prev, { sender: 'bot', text: faqAnswer }]);
+      setInput('');
+      return;
+    }
+  
+    // 2. If not in FAQ, call API as usual
     try {
       const res = await API.post('/api/chat', { message: input });
       const cleanedReply = res.data.reply.replace(
-        /^Here['']s a rewritten version with a more conversational and kind tone:\s*/i,
+        /^Here['’‘`"]?s a rewritten version with a more conversational and kind tone:\s*/i,
         ''
       );
       const botMsg = { sender: 'bot', text: cleanedReply };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
-      setMessages((prev) => [...prev, { sender: 'bot', text: 'Error connecting to server.' }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: 'bot', text: 'Error connecting to server.' }
+      ]);
     }
-
+  
     setInput('');
   };
+  
 
   const handleClose = () => {
     navigate('/');
