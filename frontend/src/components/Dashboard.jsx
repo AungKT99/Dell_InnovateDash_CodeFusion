@@ -18,10 +18,10 @@ const CancerRiskData = {
     percentage: 72
   },
   riskBreakdown: [
-    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 25, description: "Daily smoker (10+ cigarettes)", severity: "high" },
-    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 20, description: "High processed food intake", severity: "high" },
-    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 15, description: "Less than 30 mins/week", severity: "medium" },
-    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 12, description: "Parent with colorectal cancer", severity: "medium" }
+    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 2, description: "Daily smoker (10+ cigarettes)", severity: "high" },
+    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 2, description: "High processed food intake", severity: "high" },
+    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 1, description: "Less than 30 mins/week", severity: "medium" },
+    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 2, description: "Parent with colorectal cancer", severity: "medium" }
   ],
   colors: {
     highRisk: { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" },
