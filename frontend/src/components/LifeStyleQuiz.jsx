@@ -180,7 +180,7 @@ const LifestyleQuiz = () => {
           </div>
 
           {/* Category Breakdown */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Factor Categories</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
@@ -202,14 +202,15 @@ const LifestyleQuiz = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="text-center space-y-4">
             <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-lg mb-6">
-              <h3 className="text-xl font-bold mb-2">🎯 Take Action to Reduce Your Risk</h3>
+              <h3 className="text-xl font-bold mb-2">🎯 Secure Your Health with Early Screening</h3>
               <p className="text-green-100 mb-4">
-                Get personalized recommendations and connect with healthcare professionals
+                Finding cancer early usually means simpler treatment, lower costs, and far better survival—book your screening today.
+
               </p>
             </div>
 
