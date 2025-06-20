@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/styles.css';
 import '../styles/profile.css';
@@ -13,16 +14,7 @@ const Profile = () => {
 
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
       <main className="profile-page">
         {/* User Header */}

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header';
 import '../styles/styles.css';
 import '../styles/onboarding.css';
+
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -38,16 +40,7 @@ const Onboarding = () => {
 
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
       <div className="onboarding-box">
         <h2>Let's personalize your wellness journey</h2>

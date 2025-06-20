@@ -9,14 +9,10 @@ import Register from './components/Register';
 
 // Dashboard + other features
 import Dashboard from './components/Dashboard';
-import Community from './components/Community';
-import Challenges from './components/Challenges';
-import WellnessDuo from './components/WellnessDuo';
 import Profile from './components/Profile';
 import FAQ from './components/FAQ';
 import Index from './components/Index';
 import Onboarding from './components/Onboarding';
-import Persona from './components/Persona';
 import KnowledgeQuiz from './components/KnowledgeQuiz'; 
 
 import './index.css';
@@ -33,7 +29,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/knowledge_quiz" element={<KnowledgeQuiz />} /> 
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/persona" element={<Persona />} />
           <Route path="/faq" element={<FAQ />} />
 
           {/* Protected routes */}
@@ -46,31 +41,7 @@ function App() {
             } 
           />
 
-          
-          <Route 
-            path="/community" 
-            element={
-              <ProtectedRoute>
-                <Community />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/challenges" 
-            element={
-              <ProtectedRoute>
-                <Challenges />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/wellness-duo" 
-            element={
-              <ProtectedRoute>
-                <WellnessDuo />
-              </ProtectedRoute>
-            } 
-          />
+
           <Route 
             path="/profile" 
             element={
