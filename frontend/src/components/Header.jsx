@@ -20,12 +20,6 @@ const MobileNav = ({ isOpen, onToggle }) => {
           <Link to="/dashboard" className="mobile-nav-link" onClick={onToggle}>
             <span>Dashboard</span>
           </Link>
-          <Link to="/community" className="mobile-nav-link" onClick={onToggle}>
-            <span>Community</span>
-          </Link>
-          <Link to="/challenges" className="mobile-nav-link" onClick={onToggle}>
-            <span>Challenges</span>
-          </Link>
           <Link to="/profile" className="mobile-nav-link" onClick={onToggle}>
             <span>Profile</span>
           </Link>
@@ -45,8 +39,6 @@ const Header = () => {
         <nav className="desktop-nav">
           <Link to="/">Home</Link>
           <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
           <Link to="/profile">Profile</Link>
         </nav>
         <button className="mobile-nav-toggle" onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}>
