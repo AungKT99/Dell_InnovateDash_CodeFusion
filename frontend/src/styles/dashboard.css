@@ -521,3 +521,117 @@
     padding: 0;
   }
 }
+
+.risk-simulator-card {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.10);
+  padding: 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100%;
+}
+.sim-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--primary, #b0004e);
+}
+.sim-scores-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+.sim-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #b0004e;
+  opacity: 0.8;
+}
+.sim-arrow {
+  font-size: 1.5rem;
+  color: #b0004e;
+  font-weight: bold;
+}
+.sim-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0.25rem 0;
+  color: var(--primary, #b0004e);
+}
+.sim-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+.sim-slider-label {
+  width: 80px;
+  font-weight: 500;
+  color: #444;
+}
+.sim-slider-value {
+  min-width: 60px;
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+.sim-points {
+  min-width: 70px;
+  text-align: right;
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.risk-simulator-card input[type="range"] {
+  flex: 1;
+  accent-color: #b0004e;
+  margin: 0 0.5rem;
+  height: 2px;
+}
+.sim-total-reduction {
+  text-align: center;
+  font-weight: 700;
+  color: #b0004e;
+  margin: 0.5rem 0;
+}
+.sim-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.sim-btn {
+  background: #f3e1ff;
+  color: #b0004e;
+  border: 1px solid #b0004e;
+  border-radius: 0.5rem;
+  padding: 0.4rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.sim-btn:hover {
+  background: #b0004e;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .risk-simulator-card {
+    padding: 1rem;
+  }
+  .sim-slider-label {
+    width: 60px;
+    font-size: 0.95rem;
+  }
+  .sim-slider-value, .sim-points {
+    font-size: 0.9rem;
+  }
+}

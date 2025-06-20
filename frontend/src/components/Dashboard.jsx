@@ -18,10 +18,10 @@ const CancerRiskData = {
     percentage: 72
   },
   riskBreakdown: [
-    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 2, description: "Daily smoker (10+ cigarettes)", severity: "high" },
-    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 2, description: "High processed food intake", severity: "high" },
-    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 1, description: "Less than 30 mins/week", severity: "medium" },
-    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 2, description: "Parent with colorectal cancer", severity: "medium" }
+    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 25, description: "Daily smoker (10+ cigarettes)", severity: "high" },
+    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 20, description: "High processed food intake", severity: "high" },
+    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 15, description: "Less than 30 mins/week", severity: "medium" },
+    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 12, description: "Parent with colorectal cancer", severity: "medium" }
   ],
   colors: {
     highRisk: { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" },
@@ -182,13 +182,92 @@ const CancerRiskAssessment = () => {
   );
 };
 
+const RiskReductionSimulator = () => {
+  // Initial values from CancerRiskData
+  const initialSmoking = 10; // 10+ cigarettes/day
+  const initialExercise = 0; // Never
+  const initialDiet = 0; // Poor
+
+  // Slider state
+  const [smoking, setSmoking] = useState(initialSmoking);
+  const [exercise, setExercise] = useState(initialExercise);
+  const [diet, setDiet] = useState(initialDiet);
+
+  // Risk points from CancerRiskData
+  const smokingMaxPoints = 25; // Daily smoker
+  const exerciseMaxPoints = 15; // No exercise
+  const dietMaxPoints = 20; // Poor diet
+
+  // Calculate reductions
+  const smokingReduction = (smokingMaxPoints * (1 - smoking / 10)); // 0 = never, 10 = max
+  const exerciseReduction = (exerciseMaxPoints * (exercise / 7)); // 0 = never, 7 = daily
+  const dietReduction = (dietMaxPoints * (diet / 10)); // 0 = poor, 10 = healthy
+
+  // Simulated risk score
+  const currentRisk = CancerRiskData.riskScore.current;
+  const simulatedRisk = Math.round(
+    currentRisk - (smokingMaxPoints - smokingReduction) - (exerciseMaxPoints - exerciseReduction) - (dietMaxPoints - dietReduction)
+  );
+  const totalReduction = currentRisk - simulatedRisk;
+  const reductionPercent = Math.round((totalReduction / currentRisk) * 100);
+
+  // Risk level
+  let simulatedLevel = 'HIGH RISK';
+  if (simulatedRisk < 50) simulatedLevel = 'MODERATE RISK';
+  if (simulatedRisk < 30) simulatedLevel = 'LOW RISK';
+
+  return (
+    <div className="risk-simulator-card">
+      <div className="sim-header">RISK REDUCTION SIMULATOR</div>
+      <hr />
+      <div className="sim-scores-row">
+        <div>
+          <div>Current: <b>{currentRisk}</b></div>
+          <div className="sim-label">HIGH RISK</div>
+        </div>
+        <div className="sim-arrow">→</div>
+        <div>
+          <div>Simulated: <b>{simulatedRisk}</b></div>
+          <div className="sim-label">{simulatedLevel}</div>
+        </div>
+      </div>
+      <hr />
+      <div className="sim-section-title">Adjust Your Lifestyle:</div>
+      <div className="sim-slider-row">
+        <div className="sim-slider-label">Smoking</div>
+        <input type="range" min="0" max="10" step="0.1" value={smoking} onChange={e => setSmoking(Number(e.target.value))} />
+        <div className="sim-slider-value">{smoking === 0 ? 'Never' : smoking === 10 ? '10+/day' : smoking.toFixed(1) + '/day'}</div>
+        <div className="sim-points">-{Math.round(smokingMaxPoints - smokingReduction)} pts</div>
+      </div>
+      <div className="sim-slider-row">
+        <div className="sim-slider-label">Exercise</div>
+        <input type="range" min="0" max="7" step="0.1" value={exercise} onChange={e => setExercise(Number(e.target.value))} />
+        <div className="sim-slider-value">{exercise === 0 ? 'Never' : exercise === 7 ? 'Daily' : exercise.toFixed(1) + 'x/wk'}</div>
+        <div className="sim-points">-{Math.round(exerciseMaxPoints - exerciseReduction)} pts</div>
+      </div>
+      <div className="sim-slider-row">
+        <div className="sim-slider-label">Diet</div>
+        <input type="range" min="0" max="10" step="0.1" value={diet} onChange={e => setDiet(Number(e.target.value))} />
+        <div className="sim-slider-value">{diet === 0 ? 'Poor' : diet === 10 ? 'Healthy' : diet.toFixed(1)}</div>
+        <div className="sim-points">-{Math.round(dietMaxPoints - dietReduction)} pts</div>
+      </div>
+      <hr />
+      <div className="sim-total-reduction">Total Reduction: <b>{totalReduction} points ({reductionPercent}%)</b></div>
+      <div className="sim-actions">
+        <button className="sim-btn">Save as PDF</button>
+        <button className="sim-btn">Share Results</button>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
     { id: 0, name: 'Risk Assessment', icon: AlertTriangle, component: <CancerRiskAssessment /> },
-    { id: 1, name: 'Section 2', icon: Activity, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2><p className="text-gray-600">Content for second section will go here</p></div> },
+    { id: 1, name: 'Risk Simulator', icon: Activity, component: <RiskReductionSimulator /> },
     { id: 2, name: 'Section 3', icon: Target, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2><p className="text-gray-600">Content for third section will go here</p></div> }
   ];
 
@@ -222,9 +301,8 @@ const Dashboard = () => {
             <div className="h-full">
               <CancerRiskAssessment />
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2>
-              <p className="text-gray-600">Content for second section will go here</p>
+            <div className="h-full">
+              <RiskReductionSimulator />
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 h-full">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2>
