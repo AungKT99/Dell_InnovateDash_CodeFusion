@@ -5,8 +5,10 @@ const connectDB = require('./config/database');
 
 
 // Import routes
-const authRoutes = require('./routes/authRoutes'); //Auth Rout
-const quizRoutes = require('./routes/quiz'); //Quiz Rout
+const authRoutes = require('./routes/authRoutes'); //Auth Route
+const quizRoutes = require('./routes/quiz'); //Quiz Route
+const lifeStyleQuizRoutes = require('./routes/lifeStyleQuiz'); // LifeStyleQuiz Route
+const dashboardRoutes = require('./routes/dashboard');
 
 // Connect to database
 connectDB();
@@ -28,6 +30,8 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quiz', quizRoutes);
+app.use('/api/lifestyle-quiz', lifeStyleQuizRoutes); // ADD THIS LINE
+app.use('/api/dashboard', dashboardRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
