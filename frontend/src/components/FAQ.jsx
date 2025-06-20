@@ -1,80 +1,90 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header';
 import '../styles/styles.css';
 import '../styles/faq.css';
 
 const FAQ = () => {
-  const [openQuestion, setOpenQuestion] = useState(null);
+  const [openItem, setOpenItem] = useState(null);
 
-  const faqs = [
+  const faqItems = [
     {
+      id: 1,
       question: "What is Empower+?",
-      answer: "Empower+ is a health and wellness platform designed to help you take control of your health journey. We provide personalized guidance, community support, and tools to help you make informed decisions about your health."
+      answer: "Empower+ is a comprehensive health and wellness platform designed to encourage early cancer screening and promote healthy lifestyle habits. We combine education, community support, and gamification to make health management engaging and accessible."
     },
     {
-      question: "How does the 7-day journey work?",
-      answer: "The 7-day journey is a personalized health program that guides you through daily tasks and activities. Each day focuses on different aspects of health, from learning about screenings to developing healthy habits."
+      id: 2,
+      question: "How does the risk assessment work?",
+      answer: "Our risk assessment tool evaluates various factors including age, family history, lifestyle choices, and medical history to provide personalized risk scores. This helps identify individuals who would benefit most from early screening."
     },
     {
-      question: "What are Wellness Duos?",
-      answer: "Wellness Duos are partnerships between two users who support each other in their health journey. You can team up with a friend or be matched with someone who shares similar health goals."
+      id: 3,
+      question: "Are my health data and information secure?",
+      answer: "Yes, we take data security very seriously. All personal health information is encrypted and stored securely. We follow strict privacy guidelines and never share your data without explicit consent."
     },
     {
-      question: "How do I earn badges?",
-      answer: "Badges are earned by completing challenges, participating in community activities, and achieving health milestones. They represent your progress and achievements in your health journey."
+      id: 4,
+      question: "How do I earn badges and rewards?",
+      answer: "You can earn badges by completing challenges, participating in community activities, referring friends, and maintaining healthy habits. Each badge represents a milestone in your wellness journey."
     },
     {
-      question: "Is my health information private?",
-      answer: "Yes, we take your privacy seriously. All health information is encrypted and stored securely. You can choose what information to share with the community and your Wellness Duo."
+      id: 5,
+      question: "Can I invite friends and family?",
+      answer: "Absolutely! We encourage you to invite friends and family to join Empower+. You can earn special rewards for referrals, and it's a great way to support each other's health goals."
+    },
+    {
+      id: 6,
+      question: "What if I need to schedule a screening?",
+      answer: "Our platform can help you find nearby screening facilities and schedule appointments. We also provide reminders and support throughout the screening process."
     }
   ];
 
-  const toggleQuestion = (index) => {
-    setOpenQuestion(openQuestion === index ? null : index);
+  const toggleItem = (id) => {
+    setOpenItem(openItem === id ? null : id);
   };
 
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
-      <main className="faq-page">
-        <h1>Frequently Asked Questions</h1>
-        
-        <div className="faq-container">
-          {faqs.map((faq, index) => (
-            <div 
-              key={index} 
-              className={`faq-item ${openQuestion === index ? 'open' : ''}`}
-            >
-              <div 
-                className="faq-question"
-                onClick={() => toggleQuestion(index)}
-              >
-                <h3>{faq.question}</h3>
-                <span className="toggle-icon">
-                  {openQuestion === index ? '−' : '+'}
-                </span>
+      <main>
+        <section className="faq-header">
+          <h1>❓ Frequently Asked Questions</h1>
+          <p>Find answers to common questions about Empower+</p>
+        </section>
+
+        <section className="faq-content">
+          <div className="faq-list">
+            {faqItems.map((item) => (
+              <div key={item.id} className={`faq-item ${openItem === item.id ? 'open' : ''}`}>
+                <button 
+                  className="faq-question"
+                  onClick={() => toggleItem(item.id)}
+                >
+                  <span>{item.question}</span>
+                  <span className="faq-icon">{openItem === item.id ? '−' : '+'}</span>
+                </button>
+                <div className="faq-answer">
+                  <p>{item.answer}</p>
+                </div>
               </div>
-              <div className="faq-answer">
-                <p>{faq.answer}</p>
-              </div>
+            ))}
+          </div>
+
+          <div className="contact-section">
+            <h2>Still have questions?</h2>
+            <p>Can't find what you're looking for? Contact our support team.</p>
+            <div className="contact-options">
+              <a href="mailto:support@empowerplus.com" className="contact-btn">
+                📧 Email Support
+              </a>
+              <a href="tel:+1234567890" className="contact-btn">
+                📞 Call Us
+              </a>
             </div>
-          ))}
-        </div>
-
-        <div className="contact-section">
-          <h2>Still have questions?</h2>
-          <p>Contact our support team at support@empowerplus.com</p>
-        </div>
+          </div>
+        </section>
       </main>
     </div>
   );

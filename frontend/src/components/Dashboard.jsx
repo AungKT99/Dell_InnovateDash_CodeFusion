@@ -1,375 +1,241 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target } from 'lucide-react';
+import Header from './Header';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
 
-const Dashboard = () => {
-  const { user} = useAuth();
-  const [progress, setProgress] = useState(0);
-  const [currentDay, setCurrentDay] = useState(1);
-  const [tasks, setTasks] = useState({
-    day1: { task1: false, task2: false },
-    day2: { task1: false, task2: false },
-    day3: { task1: false, task2: false },
-    day4: { task1: false, task2: false },
-    day5: { task1: false, task2: false },
-    day6: { task1: false, task2: false },
-    day7: { task1: false, task2: false }
-  });
+const CancerRiskData = {
+  userProfile: {
+    name: "Sarah Chen",
+    age: 45,
+    gender: "Female"
+  },
+  riskScore: {
+    current: 72,
+    maximum: 100,
+    level: "HIGH RISK",
+    percentage: 72
+  },
+  riskBreakdown: [
+    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 25, description: "Daily smoker (10+ cigarettes)", severity: "high" },
+    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 20, description: "High processed food intake", severity: "high" },
+    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 15, description: "Less than 30 mins/week", severity: "medium" },
+    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 12, description: "Parent with colorectal cancer", severity: "medium" }
+  ],
+  colors: {
+    highRisk: { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" },
+    moderateRisk: { primary: "#D97706", light: "#FFF7ED", border: "#FED7AA", hover: "#B45309" },
+    lowRisk: { primary: "#059669", light: "#ECFDF5", border: "#A7F3D0", hover: "#047857" }
+  },
+  uiText: {
+    title: "MY CANCER RISK",
+    riskBreakdownTitle: "Risk Breakdown:",
+    urgencyMessage: "Early screening can significantly reduce your risk",
+    primaryButton: "Try Risk Simulator",
+    secondaryButton: "Book Screening"
+  }
+};
 
-  const maxDay = Object.keys(tasks).length;
-
-  // Animated progress state
-  const [animatedProgress, setAnimatedProgress] = useState(0);
-  const animationRef = useRef();
-
-  // Refs for day cards
-  const dayRefs = useRef(Array.from({ length: maxDay }, () => React.createRef()));
-
-  // Animate the progress ring
-  useEffect(() => {
-    let current = animatedProgress;
-    if (progress > current) {
-      animationRef.current = setInterval(() => {
-        current++;
-        setAnimatedProgress(current);
-        if (current >= progress) clearInterval(animationRef.current);
-      }, 10);
-    } else if (progress < current) {
-      animationRef.current = setInterval(() => {
-        current--;
-        setAnimatedProgress(current);
-        if (current <= progress) clearInterval(animationRef.current);
-      }, 10);
+const CancerRiskHelpers = {
+  getRiskColors: (level) => {
+    switch(level) {
+      case "HIGH RISK": return CancerRiskData.colors.highRisk;
+      case "MODERATE RISK": return CancerRiskData.colors.moderateRisk;
+      case "LOW RISK": return CancerRiskData.colors.lowRisk;
+      default: return CancerRiskData.colors.highRisk;
     }
-    return () => clearInterval(animationRef.current);
-  }, [progress]);
+  }
+};
 
-  // Cap currentDay and show journey complete
-  useEffect(() => {
-    if (currentDay > maxDay) {
-      setCurrentDay(maxDay + 1); // Sentinel value for completion
-    }
-  }, [currentDay, maxDay]);
+const CancerRiskAssessment = () => {
+  const [riskScore, setRiskScore] = useState(0);
+  const [progressWidth, setProgressWidth] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Scroll to the current day card when currentDay changes
-  useEffect(() => {
-    if (currentDay >= 2 && currentDay <= maxDay) {
-      const ref = dayRefs.current[currentDay - 1];
-      if (ref && ref.current) {
-        ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  }, [currentDay, maxDay]);
-
-  const checkTasks = (day) => {
-    const dayKey = `day${day}`;
-    if (!tasks[dayKey]) return;
-    const allTasksCompleted = Object.values(tasks[dayKey]).every(task => task);
-    if (allTasksCompleted) {
-      setProgress(prev => Math.min(prev + 100 / maxDay, 100));
-      if (day === currentDay && currentDay < maxDay) {
-        setCurrentDay(prev => prev + 1);
-      } else if (day === currentDay && currentDay === maxDay) {
-        setCurrentDay(maxDay + 1); // Mark as complete
-      }
-    }
-  };
-
-  const handleTaskChange = (day, task) => {
-    setTasks(prev => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        [task]: !prev[day][task]
-      }
-    }));
-  };
+  const userRiskScore = CancerRiskData.riskScore.current;
+  const userRiskLevel = CancerRiskData.riskScore.level;
+  const riskFactors = CancerRiskData.riskBreakdown;
+  const riskColors = CancerRiskHelpers.getRiskColors(userRiskLevel);
 
   useEffect(() => {
-    checkTasks(currentDay);
-  }, [tasks, currentDay]);
+    const timer1 = setTimeout(() => {
+      setIsLoaded(true);
+      let current = 0;
+      const target = userRiskScore;
+      const increment = target / 30;
+      const scoreAnimation = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          setRiskScore(target);
+          clearInterval(scoreAnimation);
+          setTimeout(() => setProgressWidth(target), 200);
+        } else {
+          setRiskScore(Math.floor(current));
+        }
+      }, 50);
+    }, 300);
+    return () => clearTimeout(timer1);
+  }, [userRiskScore]);
 
   return (
-    <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
-
-      <main className="dashboard">
-        <div className="dashboard-container">
-          <div className="top-row">
-            {/* Health Journey Card */}
-            <div className="health-journey-card">
-              <div className="journey-header">
-                <h2>Your Health Journey</h2>
-                <p>A 7-day personalized health journey</p>
+    <div className="cancer-risk-card">
+      {/* Risk Header */}
+      <div className="risk-header">
+        <div className="risk-header-bg">
+          <div className="risk-header-content">
+            <h2 className="risk-title">
+              {CancerRiskData.uiText.title}
+            </h2>
+            
+            {/* Main Risk Score */}
+            <div className="risk-score-container">
+              <div className={`risk-score ${isLoaded ? 'loaded' : ''}`}>
+                {riskScore}
+                <span className="risk-score-max">
+                  /{CancerRiskData.riskScore.maximum}
+                </span>
               </div>
-
-              <div className="timeline-track">
-                {/* Day 1 */}
-                <div className="day-card" data-day="1" ref={dayRefs.current[0]}>
-                  <h3>Day 1</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day1.task1}
-                        onChange={() => handleTaskChange('day1', 'task1')}
-                      /> 
-                      Learn about free screenings
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day1.task2}
-                        onChange={() => handleTaskChange('day1', 'task2')}
-                      /> 
-                      Watch myth-busting video
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 2 */}
-                <div className={`day-card ${currentDay >= 2 ? '' : 'hidden'}`} data-day="2" ref={dayRefs.current[1]}>
-                  <h3>Day 2</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day2.task1}
-                        onChange={() => handleTaskChange('day2', 'task1')}
-                      /> 
-                      Do 3-min self-reflection
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day2.task2}
-                        onChange={() => handleTaskChange('day2', 'task2')}
-                      /> 
-                      Mark why screening matters
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 3 */}
-                <div className={`day-card ${currentDay >= 3 ? '' : 'hidden'}`} data-day="3" ref={dayRefs.current[2]}>
-                  <h3>Day 3</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day3.task1}
-                        onChange={() => handleTaskChange('day3', 'task1')}
-                      /> 
-                      Do 3-min self-reflection
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day3.task2}
-                        onChange={() => handleTaskChange('day3', 'task2')}
-                      /> 
-                      Mark why screening matters
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 4 */}
-                <div className={`day-card ${currentDay >= 4 ? '' : 'hidden'}`} data-day="4" ref={dayRefs.current[3]}>
-                  <h3>Day 4</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day4.task1}
-                        onChange={() => handleTaskChange('day4', 'task1')}
-                      /> 
-                      Placeholder task 1
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day4.task2}
-                        onChange={() => handleTaskChange('day4', 'task2')}
-                      /> 
-                      Placeholder task 2
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 5 */}
-                <div className={`day-card ${currentDay >= 5 ? '' : 'hidden'}`} data-day="5" ref={dayRefs.current[4]}>
-                  <h3>Day 5</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day5.task1}
-                        onChange={() => handleTaskChange('day5', 'task1')}
-                      /> 
-                      Placeholder task 1
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day5.task2}
-                        onChange={() => handleTaskChange('day5', 'task2')}
-                      /> 
-                      Placeholder task 2
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 6 */}
-                <div className={`day-card ${currentDay >= 6 ? '' : 'hidden'}`} data-day="6" ref={dayRefs.current[5]}>
-                  <h3>Day 6</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day6.task1}
-                        onChange={() => handleTaskChange('day6', 'task1')}
-                      /> 
-                      Placeholder task 1
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day6.task2}
-                        onChange={() => handleTaskChange('day6', 'task2')}
-                      /> 
-                      Placeholder task 2
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Day 7 */}
-                <div className={`day-card ${currentDay >= 7 ? '' : 'hidden'}`} data-day="7" ref={dayRefs.current[6]}>
-                  <h3>Day 7</h3>
-                  <ul>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day7.task1}
-                        onChange={() => handleTaskChange('day7', 'task1')}
-                      /> 
-                      Placeholder task 1
-                    </li>
-                    <li>
-                      <input 
-                        type="checkbox" 
-                        checked={tasks.day7.task2}
-                        onChange={() => handleTaskChange('day7', 'task2')}
-                      /> 
-                      Placeholder task 2
-                    </li>
-                  </ul>
-                </div>
+              
+              {/* Pulsing warning icon */}
+              <div className="risk-warning-icon">
+                <AlertTriangle className="warning-icon" />
               </div>
             </div>
 
-            {/* Progress Ring */}
-            <div className="progress-card">
-              <h2 className="progress-title">Journey Progress</h2>
-              <div className="circle-wrapper">
-                <svg width="160" height="160" viewBox="0 0 120 120">
-                  <circle
-                    cx="60" cy="60" r="54"
-                    stroke="#eee" strokeWidth="12" fill="none"
-                  />
-                  <circle
-                    cx="60" cy="60" r="54"
-                    stroke="#b0004e"
-                    strokeWidth="12"
-                    fill="none"
-                    strokeDasharray={339.292}
-                    strokeDashoffset={339.292 - (animatedProgress / 100) * 339.292}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 0.3s', transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
-                  />
-                  <text
-                    x="60" y="68"
-                    textAnchor="middle"
-                    fontSize="32"
-                    fill="#b0004e"
-                    fontWeight="bold"
-                  >
-                    {animatedProgress}%
-                  </text>
-                </svg>
+            {/* Risk Level Label */}
+            <div className="risk-level">
+              <AlertTriangle className="level-icon" />
+              <span className="level-text">{userRiskLevel}</span>
+              <AlertTriangle className="level-icon" />
+            </div>
+
+            {/* Progress Bar */}
+            <div className="risk-progress-container">
+              <div className="risk-progress-bar">
+                <div 
+                  className="risk-progress-fill"
+                  style={{ width: `${progressWidth}%` }}
+                />
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="bottom-row">
-            {/* Today's Challenge */}
-            <div className="box challenge-box">
-              <h2 className="box-title">Today's Challenge</h2>
-              <ul className="task-list">
-                <li><input type="checkbox" /> Eat 2 servings of fruits 🍎</li>
-                <li><input type="checkbox" /> Walk 30 minutes 🚶‍♂️</li>
-              </ul>
-              <div className="streak-tracker">
-                <p className="streak-label">🔥 4-day streak</p>
-                <div className="streak-bar">
-                  <div className="dot done"></div>
-                  <div className="dot done"></div>
-                  <div className="dot done"></div>
-                  <div className="dot current" title="Keep it up!"></div>
-                  <div className="dot upcoming"></div>
-                  <div className="dot upcoming"></div>
-                  <div className="dot upcoming"></div>
+      {/* Risk Breakdown Section */}
+      <div className="risk-content">
+        <h3 className="risk-breakdown-title">
+          <TrendingUp className="breakdown-icon" />
+          Risk Factors
+        </h3>
+        
+        <div className="risk-factors-list">
+          {riskFactors.slice(0, 3).map((factor, index) => (
+            <div 
+              key={factor.id} 
+              className={`risk-factor-item ${isLoaded ? 'loaded' : ''}`}
+              style={{ transitionDelay: `${index * 100 + 800}ms` }}
+            >
+              <div className="factor-info">
+                <span className="factor-icon">{factor.icon}</span>
+                <div className="factor-details">
+                  <div className="factor-name">
+                    {factor.name}
+                  </div>
+                  <div className="factor-description">
+                    {factor.description}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Wellness Duo */}
-            <div className="box duo-box">
-              <div className="duo-header">
-                <h2 className="box-title">
-                  Wellness Duo with
-                  <span className="duo-profile">
-                    <img src="/assets/duo-profile.png" alt="Duo" />
-                    <div className="duo-name">Jamie</div>
-                  </span>
-                </h2>
-              </div>
-              <div className="duo-stats">
-                <p>🔥 <strong>Duo Streak:</strong> 3 days</p>
-                <p>🏆 <strong>Shared Goal:</strong> "7-Day Water Challenge"</p>
-                <p><strong>Progress:</strong> ▓▓▓░░░░ (3/7)</p>
-              </div>
-              <div className="duo-actions">
-                <button className="btn-duo">Send Nudge</button>
-                <button className="btn-duo outline">View Duo Progress Details</button>
-              </div>
-              <div className="duo-badge">
-                <p>🪪 <strong>Community Builder Badge:</strong> 60%</p>
-                <div className="duo-progress-bar">
-                  <div className="duo-progress-fill" style={{ width: '60%' }}></div>
-                </div>
+              <div className="factor-points">
+                +{factor.points}
               </div>
             </div>
+          ))}
+        </div>
 
-            {/* Reminders */}
-            <div className="box reminders-box">
-              <h2 className="box-title">Reminders</h2>
-              <ul className="reminder-list">
-                <li>📅 Your screening is scheduled for <strong>18 June</strong></li>
-                <li>💧 2 days left to complete the Hydration Challenge</li>
-                <li>🧠 Mental Wellness Webinar this Friday at 4 PM</li>
-                <li>🔔 Don't forget to log your breakfast today</li>
-              </ul>
+        {/* Action Buttons */}
+        <div className="risk-actions">
+          {/* Primary CTA - Risk Simulator */}
+          <button className="risk-btn primary">
+            <span>{CancerRiskData.uiText.primaryButton}</span>
+            <ChevronRight className="btn-icon" />
+          </button>
+          
+          {/* Secondary CTA - Book Screening */}
+          <button className="risk-btn secondary">
+            <span>{CancerRiskData.uiText.secondaryButton}</span>
+            <ChevronRight className="btn-icon" />
+          </button>
+        </div>
+        
+        {/* Urgency message */}
+        <div className="risk-urgency">
+          <p className="urgency-text">
+            <AlertTriangle className="urgency-icon" />
+            {CancerRiskData.uiText.urgencyMessage}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Dashboard = () => {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    { id: 0, name: 'Risk Assessment', icon: AlertTriangle, component: <CancerRiskAssessment /> },
+    { id: 1, name: 'Section 2', icon: Activity, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2><p className="text-gray-600">Content for second section will go here</p></div> },
+    { id: 2, name: 'Section 3', icon: Target, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2><p className="text-gray-600">Content for third section will go here</p></div> }
+  ];
+
+  return (
+    <div>
+      <Header />
+
+      <main className="dashboard">
+        <div className="dashboard-container">
+          {/* Mobile Tab Navigation */}
+          <div className="mobile-tabs">
+            <div className="tab-navigation">
+              {tabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <IconComponent className="tab-icon" />
+                    <span className="tab-label">{tab.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Grid Layout */}
+          <div className="desktop-grid">
+            <div className="h-full">
+              <CancerRiskAssessment />
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2>
+              <p className="text-gray-600">Content for second section will go here</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2>
+              <p className="text-gray-600">Content for third section will go here</p>
+            </div>
+          </div>
+
+          {/* Mobile Tab Content */}
+          <div className="tab-content">
+            <div className="tab-panel">
+              {tabs[activeTab].component}
             </div>
           </div>
         </div>
@@ -378,4 +244,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

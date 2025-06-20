@@ -1,20 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header';
 import '../styles/styles.css';
 
 const Index = () => {
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="hero-content">

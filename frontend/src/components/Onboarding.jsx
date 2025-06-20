@@ -1,241 +1,194 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Header from './Header';
 import '../styles/styles.css';
 import '../styles/onboarding.css';
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    ageGroup: '',
+    name: '',
+    age: '',
     gender: '',
-    smoking: '',
-    diet: '',
-    physicalActivity: '',
-    familyHistory: '',
-    screeningAttitude: '',
-    motivation: '',
-    healthApproach: ''
+    healthGoals: [],
+    experience: ''
   });
+  const navigate = useNavigate();
 
-  const handleOptionSelect = (question, value) => {
+  const totalSteps = 4;
+
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [question]: value
+      [field]: value
+    }));
+  };
+
+  const handleHealthGoalToggle = (goal) => {
+    setFormData(prev => ({
+      ...prev,
+      healthGoals: prev.healthGoals.includes(goal)
+        ? prev.healthGoals.filter(g => g !== goal)
+        : [...prev.healthGoals, goal]
     }));
   };
 
   const nextStep = () => {
-    if (currentStep < 4) {
-      setCurrentStep(prev => prev + 1);
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Complete onboarding
+      navigate('/persona');
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="onboarding-step">
+            <h2>Welcome to Empower+</h2>
+            <p>Let's get to know you better to personalize your health journey.</p>
+            <div className="form-group">
+              <label>What's your name?</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter your name"
+              />
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="onboarding-step">
+            <h2>Basic Information</h2>
+            <p>This helps us provide personalized recommendations.</p>
+            <div className="form-group">
+              <label>Age</label>
+              <input
+                type="number"
+                value={formData.age}
+                onChange={(e) => handleInputChange('age', e.target.value)}
+                placeholder="Enter your age"
+              />
+            </div>
+            <div className="form-group">
+              <label>Gender</label>
+              <select
+                value={formData.gender}
+                onChange={(e) => handleInputChange('gender', e.target.value)}
+              >
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="onboarding-step">
+            <h2>Health Goals</h2>
+            <p>What are your main health goals? (Select all that apply)</p>
+            <div className="goals-grid">
+              {[
+                'Improve fitness',
+                'Better nutrition',
+                'Mental wellness',
+                'Preventive care',
+                'Weight management',
+                'Stress reduction'
+              ].map(goal => (
+                <button
+                  key={goal}
+                  className={`goal-btn ${formData.healthGoals.includes(goal) ? 'selected' : ''}`}
+                  onClick={() => handleHealthGoalToggle(goal)}
+                >
+                  {goal}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="onboarding-step">
+            <h2>Experience Level</h2>
+            <p>How would you describe your current health journey?</p>
+            <div className="experience-options">
+              {[
+                { value: 'beginner', label: 'Just starting out', desc: 'New to health tracking' },
+                { value: 'intermediate', label: 'Some experience', desc: 'Have tried health apps before' },
+                { value: 'advanced', label: 'Health enthusiast', desc: 'Regularly track health metrics' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  className={`experience-btn ${formData.experience === option.value ? 'selected' : ''}`}
+                  onClick={() => handleInputChange('experience', option.value)}
+                >
+                  <h3>{option.label}</h3>
+                  <p>{option.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
-      <div className="onboarding-box">
-        <h2>Let's personalize your wellness journey</h2>
-
-        {/* Step 1 */}
-        <div className={`step ${currentStep === 1 ? '' : 'hidden'}`}>
-          <div className="question">
-            <strong>What is your age group?</strong>
-            <div className="options">
-              {['Under 25', '25–34', '35–44', '45–54', '55–64'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.ageGroup === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('ageGroup', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
+      <main className="onboarding-page">
+        <div className="onboarding-container">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            ></div>
           </div>
-          <div className="question">
-            <strong>What is your gender?</strong>
-            <div className="options">
-              {['Male', 'Female', 'Prefer not to say'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.gender === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('gender', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
+
+          <div className="onboarding-content">
+            {renderStep()}
+          </div>
+
+          <div className="onboarding-actions">
+            {currentStep > 1 && (
+              <button onClick={prevStep} className="btn-secondary">
+                Back
+              </button>
+            )}
+            <button 
+              onClick={nextStep} 
+              className="btn-primary"
+              disabled={
+                (currentStep === 1 && !formData.name) ||
+                (currentStep === 2 && (!formData.age || !formData.gender)) ||
+                (currentStep === 3 && formData.healthGoals.length === 0) ||
+                (currentStep === 4 && !formData.experience)
+              }
+            >
+              {currentStep === totalSteps ? 'Complete Setup' : 'Next'}
+            </button>
           </div>
         </div>
-
-        {/* Step 2 */}
-        <div className={`step ${currentStep === 2 ? '' : 'hidden'}`}>
-          <div className="question">
-            <strong>Do you currently smoke?</strong>
-            <div className="options">
-              {['Yes', 'Occasionally', 'No'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.smoking === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('smoking', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="question">
-            <strong>How often do you consume fruits and vegetables?</strong>
-            <div className="options">
-              {['Rarely', '1–2 servings a day', '3+ servings a day'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.diet === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('diet', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="question">
-            <strong>How many days a week are you physically active (30 min or more)?</strong>
-            <div className="options">
-              {['0 days', '1–2 days', '3–5 days', '6+ days'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.physicalActivity === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('physicalActivity', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Step 3 */}
-        <div className={`step ${currentStep === 3 ? '' : 'hidden'}`}>
-          <div className="question">
-            <strong>Has anyone in your immediate family been diagnosed with cancer?</strong>
-            <div className="options">
-              {['Yes', 'No', 'Not sure'].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.familyHistory === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('familyHistory', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Step 4 */}
-        <div className={`step ${currentStep === 4 ? '' : 'hidden'}`}>
-          <div className="question">
-            <strong>How do you currently feel about going for health screenings?</strong>
-            <div className="options">
-              {[
-                'I avoid them—better not to know',
-                'I procrastinate',
-                'I need reminders',
-                'I go regularly'
-              ].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.screeningAttitude === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('screeningAttitude', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="question">
-            <strong>What motivates you most to stay healthy?</strong>
-            <div className="options">
-              {[
-                'My family and loved ones',
-                'My future goals and career',
-                'My independence and freedom',
-                "I don't think much about it"
-              ].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.motivation === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('motivation', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="question">
-            <strong>Which statement best describes your current approach to health?</strong>
-            <div className="options">
-              {[
-                "I don't think about it unless something's wrong",
-                'I want to start taking better care',
-                "I'm taking small steps",
-                'I actively track and improve'
-              ].map(option => (
-                <div 
-                  key={option}
-                  className={`option ${formData.healthApproach === option ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect('healthApproach', option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="buttons">
-          <button 
-            className="btn" 
-            onClick={prevStep}
-            style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }}
-          >
-            ← Back
-          </button>
-          <button 
-            className="btn" 
-            onClick={nextStep}
-            style={{ visibility: currentStep === 4 ? 'hidden' : 'visible' }}
-          >
-            Next →
-          </button>
-          {currentStep === 4 && (
-            <Link to="/persona" className="btn">
-              Complete →
-            </Link>
-          )}
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
