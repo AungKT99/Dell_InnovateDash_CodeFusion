@@ -1,49 +1,30 @@
+// frontend/src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, Heart } from 'lucide-react';
+import { getDashboardRiskData } from '../api/dashboardApi';
 import Header from './Header';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
 
-const CancerRiskData = {
-  userProfile: {
-    name: "Sarah Chen",
-    age: 45,
-    gender: "Female"
-  },
-  riskScore: {
-    current: 72,
-    maximum: 100,
-    level: "HIGH RISK",
-    percentage: 72
-  },
-  riskBreakdown: [
-    { id: "smoking", icon: "\uD83D\uDEAC", name: "Smoking", points: 2, description: "Daily smoker (10+ cigarettes)", severity: "high" },
-    { id: "poor_diet", icon: "\uD83C\uDF54", name: "Poor Diet", points: 2, description: "High processed food intake", severity: "high" },
-    { id: "no_exercise", icon: "\uD83C\uDFC3", name: "No Exercise", points: 1, description: "Less than 30 mins/week", severity: "medium" },
-    { id: "family_history", icon: "\uD83E\uDDEC", name: "Family History", points: 2, description: "Parent with colorectal cancer", severity: "medium" }
-  ],
-  colors: {
-    highRisk: { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" },
-    moderateRisk: { primary: "#D97706", light: "#FFF7ED", border: "#FED7AA", hover: "#B45309" },
-    lowRisk: { primary: "#059669", light: "#ECFDF5", border: "#A7F3D0", hover: "#047857" }
-  },
-  uiText: {
-    title: "MY CANCER RISK",
-    riskBreakdownTitle: "Risk Breakdown:",
-    urgencyMessage: "Early screening can significantly reduce your risk",
-    primaryButton: "Try Risk Simulator",
-    secondaryButton: "Book Screening"
-  }
-};
-
 const CancerRiskHelpers = {
-  getRiskColors: (level) => {
+  getRiskColors: (level, colors) => {
+    if (!colors) {
+      // Fallback colors if API doesn't return colors
+      const fallbackColors = {
+        highRisk: { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" },
+        moderateRisk: { primary: "#D97706", light: "#FFF7ED", border: "#FED7AA", hover: "#B45309" },
+        lowRisk: { primary: "#059669", light: "#ECFDF5", border: "#A7F3D0", hover: "#047857" }
+      };
+      colors = fallbackColors;
+    }
+    
     switch(level) {
-      case "HIGH RISK": return CancerRiskData.colors.highRisk;
-      case "MODERATE RISK": return CancerRiskData.colors.moderateRisk;
-      case "LOW RISK": return CancerRiskData.colors.lowRisk;
-      default: return CancerRiskData.colors.highRisk;
+      case "HIGH RISK": return colors.highRisk;
+      case "MODERATE RISK": return colors.moderateRisk;
+      case "LOW RISK": return colors.lowRisk;
+      default: return colors.highRisk;
     }
   }
 };
@@ -52,17 +33,55 @@ const CancerRiskAssessment = () => {
   const [riskScore, setRiskScore] = useState(0);
   const [progressWidth, setProgressWidth] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [CancerRiskData, setCancerRiskData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [hasQuizData, setHasQuizData] = useState(false);
 
-  const userRiskScore = CancerRiskData.riskScore.current;
-  const userRiskLevel = CancerRiskData.riskScore.level;
-  const riskFactors = CancerRiskData.riskBreakdown;
-  const riskColors = CancerRiskHelpers.getRiskColors(userRiskLevel);
-
+  // Fetch dashboard risk data
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await getDashboardRiskData();
+        
+        if (response.success && response.hasQuizData) {
+          // Transform backend data to match your original CancerRiskData structure
+          const transformedData = {
+            userProfile: response.data.userProfile,
+            riskScore: response.data.riskScore,
+            riskBreakdown: response.data.riskBreakdown,
+            colors: response.data.colors,
+            uiText: response.data.uiText
+          };
+          
+          setCancerRiskData(transformedData);
+          setHasQuizData(true);
+        } else {
+          setHasQuizData(false);
+          setCancerRiskData(response.data); // Contains uiText for fallback
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Unable to load dashboard data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Animation effect - only run when we have data
+  useEffect(() => {
+    if (!CancerRiskData || !hasQuizData) return;
+    
+    const userRiskPercentage = CancerRiskData.riskScore.percentage;
+    
     const timer1 = setTimeout(() => {
       setIsLoaded(true);
       let current = 0;
-      const target = userRiskScore;
+      const target = userRiskPercentage;
       const increment = target / 30;
       const scoreAnimation = setInterval(() => {
         current += increment;
@@ -76,7 +95,68 @@ const CancerRiskAssessment = () => {
       }, 50);
     }, 300);
     return () => clearTimeout(timer1);
-  }, [userRiskScore]);
+  }, [CancerRiskData, hasQuizData]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="cancer-risk-card">
+        <div className="text-center py-8">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your risk assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="cancer-risk-card">
+        <div className="text-center py-8">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Unable to Load Data</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // No quiz data - show call to action
+  if (!hasQuizData) {
+    return (
+      <div className="cancer-risk-card">
+        <div className="text-center py-12">
+          <Heart className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Get Your Personalized Risk Assessment
+          </h3>
+          <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            Complete our comprehensive lifestyle quiz to understand your cancer risk factors and get personalized recommendations.
+          </p>
+          <Link
+            to="/lifestyle_quiz"
+            className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+          >
+            Take Lifestyle Assessment
+            <ChevronRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Main component with real data - using your exact original UI structure
+  const userRiskScore = CancerRiskData.riskScore.current;
+  const userRiskLevel = CancerRiskData.riskScore.level;
+  const riskFactors = CancerRiskData.riskBreakdown;
+  const riskColors = CancerRiskHelpers.getRiskColors(userRiskLevel, CancerRiskData.colors);
 
   return (
     <div className="cancer-risk-card">
@@ -91,10 +171,8 @@ const CancerRiskAssessment = () => {
             {/* Main Risk Score */}
             <div className="risk-score-container">
               <div className={`risk-score ${isLoaded ? 'loaded' : ''}`}>
-                {riskScore}
-                <span className="risk-score-max">
-                  /{CancerRiskData.riskScore.maximum}
-                </span>
+                {Math.round(riskScore)}
+                <span className="risk-score-max">%</span>
               </div>
               
               {/* Pulsing warning icon */}
@@ -146,6 +224,11 @@ const CancerRiskAssessment = () => {
                   <div className="factor-description">
                     {factor.description}
                   </div>
+                  {factor.rationale && (
+                    <div className="factor-rationale">
+                      {factor.rationale}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="factor-points">

@@ -14,6 +14,7 @@ import FAQ from './components/FAQ';
 import Index from './components/Index';
 import Onboarding from './components/Onboarding';
 import KnowledgeQuiz from './components/KnowledgeQuiz'; 
+import LifestyleQuiz from './components/LifeStyleQuiz';
 
 import './index.css';
 
@@ -50,7 +51,16 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
+          
+          <Route 
+            path="/lifestyle_quiz" 
+            element={
+              <ProtectedRoute>
+                <LifestyleQuiz />
+              </ProtectedRoute>
+            } 
+          />
+          
           {/* Catch-all: if unknown route, redirect to dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

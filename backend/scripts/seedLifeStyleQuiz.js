@@ -1,6 +1,6 @@
 // seedLifestyleQuiz.js
 const mongoose = require('mongoose');
-const LifestyleQuiz = require('../models/LifestyleQuiz');
+const LifestyleQuiz = require('../models/LifeStyleQuiz');
 require('dotenv').config();
 
 const lifestyleQuizData = {
