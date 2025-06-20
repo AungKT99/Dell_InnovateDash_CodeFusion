@@ -174,7 +174,7 @@ const lifestyleQuizData = {
         { id: 'c', text: '3-4 servings', points: 3 },
         { id: 'd', text: '5+ servings', points: 0 }
       ],
-      rationale: 'Plant-rich diets are protective.'
+      rationale: 'Not enough fibre raises cancer risk.'
     },
     {
       id: 'q9',

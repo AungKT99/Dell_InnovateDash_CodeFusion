@@ -36,10 +36,10 @@ const RISK_COLORS = {
 /* ----------- HELPER FUNCTIONS ------------ */
 const getUrgencyMessage = (riskLevel) => {
   switch (riskLevel) {
-    case 'LOW_RISK':      return 'Continue your healthy lifestyle habits';
-    case 'MODERATE_RISK': return 'Consider improving some lifestyle factors';
-    case 'HIGH_RISK':     return 'Early screening can significantly reduce your risk';
-    default:              return 'Early screening can significantly reduce your risk';
+    case 'LOW_RISK':      return 'Maintain healthy habits and do regular screening.';
+    case 'MODERATE_RISK': return 'Clean up a few habits and keep screening; early catch is half the battle.';
+    case 'HIGH_RISK':     return 'Book a screening ASAP. Early catch means easier treatment.';
+    default:              return 'Book a screening ASAP. Early catch means easier treatment.';
   }
 };
 
@@ -67,30 +67,60 @@ const extractUserProfile = (answers, quiz) => {
 
 /* --------- BUILD RISK BREAKDOWN ---------- */
 const buildRiskBreakdown = (answers, quiz) => {
-  const riskFactors         = [];
-  const maxTotalRiskScore   = quiz.scoring.maxTotalPoints; // e.g. 320
+  const riskFactors = [];
+  const maxTotalRiskScore = quiz.scoring.maxTotalPoints;
+
+  // Debug logging
+  console.log('=== BUILDING RISK BREAKDOWN ===');
+  console.log('Total answers:', answers.length);
+  console.log('Max total score:', maxTotalRiskScore);
 
   answers.forEach((answer) => {
-    const question       = quiz.questions.find((q) => q.id === answer.qid);
+    const question = quiz.questions.find((q) => q.id === answer.qid);
     const selectedOption = question?.options.find((opt) => opt.id === answer.optionId);
 
     if (question && selectedOption && question.displayData) {
-      const percentage = Math.round((answer.categoryScore / maxTotalRiskScore) * 100);
+      const score = answer.categoryScore || 0;
+      const percentage = Math.round((score / maxTotalRiskScore) * 100);
 
-      riskFactors.push({
-        id:          answer.qid,
-        icon:        question.displayData.icon,
-        name:        question.displayData.shortName,
-        points:      answer.categoryScore,
-        percentage,                     // same value, shorter key
-        description: selectedOption.text,
-        severity:    getSeverity(answer.categoryScore),
-        rationale:   question.rationale
+      // Debug each factor
+      console.log(`Question ${answer.qid} (${question.displayData.shortName}):`, {
+        score: score,
+        percentage: percentage,
+        selectedOption: selectedOption.text,
+        hasDisplayData: !!question.displayData
+      });
+
+      // ONLY include factors with score > 0 (non-zero risk factors)
+      if (score > 0) {
+        riskFactors.push({
+          id: answer.qid,
+          icon: question.displayData.icon,
+          name: question.displayData.shortName,
+          points: score,
+          percentage,
+          description: selectedOption.text,
+          severity: getSeverity(score),
+          rationale: question.rationale
+        });
+        console.log(`✅ Added factor: ${question.displayData.shortName} (+${score})`);
+      } else {
+        console.log(`❌ Skipped factor: ${question.displayData.shortName} (score: ${score})`);
+      }
+    } else {
+      console.log(`⚠️ Missing data for question ${answer.qid}:`, {
+        hasQuestion: !!question,
+        hasSelectedOption: !!selectedOption,
+        hasDisplayData: question?.displayData ? true : false
       });
     }
   });
 
-  return riskFactors.sort((a, b) => b.points - a.points); // highest first
+  console.log(`Final risk factors count: ${riskFactors.length}`);
+  console.log('Risk factors:', riskFactors.map(f => `${f.name}: +${f.points}`));
+
+  // Sort by score (highest first) and return all non-zero factors
+  return riskFactors.sort((a, b) => b.points - a.points);
 };
 
 /* -------- GET DASHBOARD RISK DATA -------- */
@@ -117,6 +147,17 @@ const getDashboardRiskData = async (req, res) => {
     if (!quiz) {
       return res.status(404).json({ success: false, message: 'Quiz data not found' });
     }
+
+    // Debug the attempt data
+    console.log('=== DASHBOARD DATA DEBUG ===');
+    console.log('User ID:', userId);
+    console.log('Latest attempt:', {
+      id: latestAttempt._id,
+      totalScore: latestAttempt.totalScore,
+      percentageScore: latestAttempt.percentageScore,
+      riskLevel: latestAttempt.riskLevel,
+      answersCount: latestAttempt.answers.length
+    });
 
     // profile + breakdown
     const { age, gender } = extractUserProfile(latestAttempt.answers, quiz);
@@ -146,6 +187,10 @@ const getDashboardRiskData = async (req, res) => {
         urgencyMessage: getUrgencyMessage(latestAttempt.riskLevel)
       }
     };
+
+    console.log('=== FINAL DASHBOARD DATA ===');
+    console.log('Risk breakdown count:', riskBreakdown.length);
+    console.log('=== END DEBUG ===');
 
     return res.status(200).json({
       success:     true,
