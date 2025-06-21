@@ -7,7 +7,7 @@ import { getDashboardRiskData } from '../api/dashboardApi';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import LifestylePlanPdf from './LifestylePlanPdf';
+import RiskPlanPdf from './RiskPlanPdf';
 
 const CancerRiskHelpers = {
   getRiskColors: (level, colors) => {
@@ -536,7 +536,7 @@ const RiskSimulator = () => {
         <div className="risk-actions">
           <PDFDownloadLink
             document={
-              <LifestylePlanPdf
+              <RiskPlanPdf
                 currentRiskScore={currentRiskScore}
                 simulatedRiskScore={simulatedRiskScore}
                 modifiableFactors={modifiableFactors}

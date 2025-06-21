@@ -1,9 +1,10 @@
-// frontend/src/components/Dashboard.jsx - Complete version with Screening Card
+// frontend/src/components/Dashboard.jsx - Fixed version
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, ClipboardCheck, ShieldCheck} from 'lucide-react';
 import Header from './Header';
+import RiskSimulator from './RiskSimulator';
 import { getDashboardRiskData } from '../api/dashboardApi';
 import { getScreeningChecklist, getAllAvailableScreenings } from '../api/screeningApi'; 
 import '../styles/styles.css';
@@ -317,26 +318,6 @@ const CancerRiskAssessment = () => {
             </div>
           )}
         </div>
-
-        {/* Action Buttons */}
-        
-        {/* <div className="risk-actions"> */}
-          {/* Primary CTA - Risk Simulator */}
-          {/* <button className="risk-btn primary">
-            <span>{uiText.primaryButton || 'Try Risk Simulator'}</span>
-            <ChevronRight className="btn-icon" />
-          </button> */}
-          
-          {/* Secondary CTA - View Screening Recommendations */}
-          {/* <Link 
-            to="/screening-checklist"
-            className="risk-btn secondary"
-          >
-            <span>{uiText.secondaryButton || 'View Screening Recommendations'}</span>
-            <ChevronRight className="btn-icon" />
-          </Link>
-        </div> */}
-        
         
         {/* Urgency message */}
         <div className="risk-urgency">
@@ -350,8 +331,6 @@ const CancerRiskAssessment = () => {
   );
 };
 
-// NEW: Screening Overview component for dashboard
-// Updated ScreeningOverview component for Dashboard.jsx
 const ScreeningOverview = () => {
   const [screeningData, setScreeningData] = useState(null);
   const [allAvailableScreenings, setAllAvailableScreenings] = useState(null);
@@ -361,48 +340,49 @@ const ScreeningOverview = () => {
   const [loadingAllScreenings, setLoadingAllScreenings] = useState(false);
 
   const fetchScreeningData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await getScreeningChecklist();
-        
-        if (response.success) {
-          setScreeningData(response.data);
-        } else {
-          setError(response.message || 'Unable to fetch screening data');
-        }
-      } catch (err) {
-        console.error('Error fetching screening data:', err);
-        if (err.status === 404) {
-          setError('quiz_required'); // Special flag for no quiz taken
-        } else {
-          setError('Unable to fetch screening recommendations');
-        }
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getScreeningChecklist();
+      
+      if (response.success) {
+        setScreeningData(response.data);
+      } else {
+        setError(response.message || 'Unable to fetch screening data');
       }
-    };
+    } catch (err) {
+      console.error('Error fetching screening data:', err);
+      if (err.status === 404) {
+        setError('quiz_required'); // Special flag for no quiz taken
+      } else {
+        setError('Unable to fetch screening recommendations');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAllAvailableScreenings = async () => {
-  try {
-    setLoadingAllScreenings(true);
-    
-    // Make real API call to get all available screening tests from database
-    const response = await getAllAvailableScreenings();
-    
-    if (response.success) {
-      setAllAvailableScreenings(response.data.screeningTests || []);
-    } else {
-      console.error('Failed to fetch all available screenings:', response.message);
+    try {
+      setLoadingAllScreenings(true);
+      
+      // Make real API call to get all available screening tests from database
+      const response = await getAllAvailableScreenings();
+      
+      if (response.success) {
+        setAllAvailableScreenings(response.data.screeningTests || []);
+      } else {
+        console.error('Failed to fetch all available screenings:', response.message);
+        setAllAvailableScreenings([]);
+      }
+    } catch (err) {
+      console.error('Error fetching all available screenings:', err);
       setAllAvailableScreenings([]);
+    } finally {
+      setLoadingAllScreenings(false);
     }
-  } catch (err) {
-    console.error('Error fetching all available screenings:', err);
-    setAllAvailableScreenings([]);
-  } finally {
-    setLoadingAllScreenings(false);
-  }
-};
+  };
+
   const handleShowAllScreenings = async () => {
     if (!showAllScreenings && !allAvailableScreenings) {
       await fetchAllAvailableScreenings();
@@ -488,12 +468,12 @@ const ScreeningOverview = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-y-auto">
-      {/* Header - REMOVED user info line */}
+      {/* Header */}
       <div className="text-center border-b border-gray-200 pb-4 mb-6">
         <h2 className="text-xl font-bold text-gray-800">YOUR SCREENING CHECKLIST</h2>
       </div>
 
-     {/* Screening Items or No Recommendations Message */}
+      {/* Screening Items or No Recommendations Message */}
       <div className="space-y-4">
         {sortedRecommendedItems.length > 0 ? (
           // Show recommended items
@@ -510,7 +490,6 @@ const ScreeningOverview = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <ClipboardCheck className="w-8 h-8 text-green-600" />
             </div>
-            {/* <h3 className="text-lg font-semibold text-gray-900 mb-2">Great News!</h3> */}
             <p className="text-gray-600 mb-4">
               No urgent screenings are needed based on your current risk, but we strongly recommend regular cancer screenings 
               for early detection.
@@ -573,7 +552,6 @@ const ScreeningOverview = () => {
   );
 };
 
-// Updated Individual Screening Card Component
 const ScreeningCard = ({ item, isRecommended }) => {
   const getPriorityIcon = (priority) => {
     switch (priority?.toLowerCase()) {
@@ -647,13 +625,6 @@ const ScreeningCard = ({ item, isRecommended }) => {
           </button>
         )}
       </div>
-
-      {/* Recommended Provider */}
-      {/* {item.recommendedPackage && (
-        <div className="text-xs text-gray-500">
-          Recommended: {item.recommendedPackage.provider.name}
-        </div>
-      )} */}
     </div>
   );
 };
@@ -689,7 +660,7 @@ const Dashboard = () => {
 
       <main className="dashboard">
         <div className="dashboard-container">
-          {/* Mobile Tab Navigation */}
+          {/* Mobile Tab Navigation - Hidden on desktop */}
           <div className="mobile-tabs">
             <div className="tab-navigation">
               {tabs.map((tab) => {
@@ -708,7 +679,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Desktop Grid Layout */}
+          {/* Desktop Grid Layout - Hidden on mobile */}
           <div className="desktop-grid">
             <div className="h-full">
               <CancerRiskAssessment />
@@ -721,7 +692,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Mobile Tab Content */}
+          {/* Mobile Tab Content - Hidden on desktop */}
           <div className="tab-content">
             <div className="tab-panel">
               {tabs[activeTab].component}
