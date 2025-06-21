@@ -37,4 +37,4 @@ const screeningTestSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('ScreeningTest', screeningTestSchema);
+module.exports = mongoose.models.ScreeningTest || mongoose.model('ScreeningTest', screeningTestSchema);

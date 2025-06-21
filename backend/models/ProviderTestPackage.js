@@ -17,7 +17,7 @@ const providerTestPackageSchema = new mongoose.Schema({
   },
   packageUrl: {
     type: String,
-    required: true // Direct link to book/info page
+    required: true
   },
   price: {
     amount: Number,
@@ -27,11 +27,11 @@ const providerTestPackageSchema = new mongoose.Schema({
     },
     subsidized: {
       amount: Number,
-      eligibility: String // e.g., "Citizens and PRs"
+      eligibility: String
     }
   },
   availability: {
-    locations: [String], // Multiple clinic locations
+    locations: [String],
     onlineBooking: {
       type: Boolean,
       default: false
@@ -57,19 +57,23 @@ const providerTestPackageSchema = new mongoose.Schema({
   },
   priority: {
     type: Number,
-    default: 1 // Higher number = higher priority for this provider-test combo
+    default: 1
   },
   isActive: {
     type: Boolean,
     default: true
   },
   additionalInfo: {
-    waitTime: String, // "Usually 1-2 weeks"
-    requirements: [String], // ["Referral letter required", "Fasting 8-12 hours"]
-    includes: [String] // ["Consultation", "Results explanation", "Follow-up call"]
+    waitTime: String,
+    requirements: [String],
+    includes: [String]
   }
 }, {
   timestamps: true
 });
 
+// Compound index for efficient queries
+providerTestPackageSchema.index({ providerId: 1, testId: 1 });
+providerTestPackageSchema.index({ testId: 1, priority: -1 });
 
+module.exports = mongoose.models.ProviderTestPackage || mongoose.model('ProviderTestPackage', providerTestPackageSchema);
