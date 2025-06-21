@@ -259,9 +259,9 @@ const LifestyleQuiz = () => {
         <div className="border-b" style={{ borderColor: '#fce4ec', paddingBottom: '24px', marginBottom: '24px' }}>
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold" style={{ color: '#b0004e' }}>{quiz.title}</h1>
-            {/* <span className="text-sm" style={{ color: '#b0004e' }}>
+            <span className="text-sm" style={{ color: '#b0004e' }}>
               Category {currentCategoryIndex + 1} of {categories.length}
-            </span> */}
+            </span>
           </div>
           {/* Progress Bar */}
           <div className="w-full rounded-full h-2" style={{ backgroundColor: '#fce4ec' }}>
@@ -294,7 +294,7 @@ const LifestyleQuiz = () => {
               </div>
 
               {/* Category Badge */}
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 <span
                   className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
                   style={{
@@ -304,7 +304,7 @@ const LifestyleQuiz = () => {
                 >
                   {currentQ.category.charAt(0).toUpperCase() + currentQ.category.slice(1)} Factor
                 </span>
-              </div>
+              </div> */}
 
               {/* Options */}
               <div className="options">
