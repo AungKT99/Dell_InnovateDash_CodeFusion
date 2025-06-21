@@ -4,27 +4,38 @@ const QuizAttempt = require('../models/QuizAttempt');
 // Get active quiz for public access
 const getActiveQuiz = async (req, res) => {
   try {
-    const quiz = await Quiz.findOne({ isActive: true }).sort({ createdAt: -1 });
-    
-    if (!quiz) {
+    const quiz = await Quiz.aggregate([
+      { $match: { isActive: true } },
+      { $unwind: '$questions' },
+      { $sample: { size: 10 } }, // randomly pick 10 questions
+      {
+        $group: {
+          _id: '$_id',
+          title: { $first: '$title' },
+          version: { $first: '$version' },
+          questions: { $push: '$questions' }
+        }
+      }
+    ]);
+
+    if (!quiz || quiz.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'No active quiz found'
       });
     }
 
-    // Return quiz without correct answers for security
+    // Strip correct answers for public
     const publicQuiz = {
-      _id: quiz._id,
-      title: quiz.title,
-      version: quiz.version,
-      questions: quiz.questions.map(q => ({
+      _id: quiz[0]._id,
+      title: quiz[0].title,
+      version: quiz[0].version,
+      questions: quiz[0].questions.map(q => ({
         id: q.id,
         text: q.text,
         options: q.options.map(opt => ({
           id: opt.id,
           text: opt.text
-          // Don't include isCorrect or weight
         }))
       }))
     };
@@ -104,7 +115,9 @@ const submitQuizAttempt = async (req, res) => {
       correctAnswers,
       totalQuestions: quiz.questions.length,
       knowledgeLevel,
-      explanations: quiz.questions.map(q => {
+      explanations: quiz.questions
+        .filter(q => answers.find(a => a.qid === q.id))
+        .map(q => {
         const userAnswer = answers.find(a => a.qid === q.id);
         const selectedOption = userAnswer ? 
           q.options.find(opt => opt.id === userAnswer.optionId) : null;

@@ -4,8 +4,6 @@ import { ChevronLeft, ChevronRight, Brain, Loader2, CheckCircle, XCircle } from 
 import { getActiveQuiz, submitQuizAttempt } from '../api/quizApi';
 import '../styles/onboarding.css';
 
-const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
-
 const KnowledgeQuiz = () => {
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -16,13 +14,12 @@ const KnowledgeQuiz = () => {
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchAndShuffleQuiz = async () => {
+  const fetchQuiz = async () => {
     try {
       setLoading(true);
-      const response = await getActiveQuiz();
+      const response = await getActiveQuiz(); // already randomized 10 from backend
       if (response.success) {
-        const shuffled = shuffleArray(response.data.questions).slice(0, 10);
-        setQuiz({ ...response.data, questions: shuffled });
+        setQuiz(response.data);
       } else {
         setError('Failed to load quiz');
       }
@@ -34,7 +31,7 @@ const KnowledgeQuiz = () => {
   };
 
   useEffect(() => {
-    fetchAndShuffleQuiz();
+    fetchQuiz();
   }, []);
 
   const handleAnswerSelect = (questionId, optionId) => {
@@ -56,14 +53,30 @@ const KnowledgeQuiz = () => {
   const submitQuiz = async () => {
     try {
       setSubmitting(true);
-      const formattedAnswers = Object.entries(answers).map(([qid, optionId]) => ({ qid, optionId }));
-      const response = await submitQuizAttempt({ quizId: quiz._id, answers: formattedAnswers });
+
+      const formattedAnswers = quiz.questions.map((q) => ({
+        qid: q.id,
+        optionId: answers[q.id],
+      }));
+
+      const allAnswered = formattedAnswers.every((ans) => ans.optionId !== undefined);
+      if (!allAnswered) {
+        setError('Please answer all 10 questions before submitting.');
+        setSubmitting(false);
+        return;
+      }
+
+      const response = await submitQuizAttempt({
+        quizId: quiz._id,
+        answers: formattedAnswers,
+      });
+
       if (response.success) {
         localStorage.setItem('quizAttemptId', response.data.attemptId);
         setResults(response.data.results);
         setShowResults(true);
       } else {
-        setError('Failed to submit quiz');
+        setError('Failed to submit quiz.');
       }
     } catch (err) {
       setError('Unable to submit quiz. Please try again.');
@@ -78,7 +91,7 @@ const KnowledgeQuiz = () => {
     setResults(null);
     setShowResults(false);
     setError(null);
-    fetchAndShuffleQuiz();
+    fetchQuiz();
   };
 
   const getScoreLevelColor = (score) => {
@@ -90,7 +103,7 @@ const KnowledgeQuiz = () => {
   const progress = quiz ? ((currentQuestion + 1) / quiz.questions.length) * 100 : 0;
   const isLastQuestion = quiz && currentQuestion === quiz.questions.length - 1;
   const canProceed = answers[quiz?.questions[currentQuestion]?.id];
-  const allQuestionsAnswered = quiz && Object.keys(answers).length === quiz.questions.length;
+  const allQuestionsAnswered = quiz?.questions.every(q => answers[q.id]);
 
   if (loading) {
     return (
@@ -134,11 +147,10 @@ const KnowledgeQuiz = () => {
             <h2 className="text-3xl font-bold" style={{ color: '#b0004e' }}>Quiz Complete!</h2>
           </div>
 
-          <div className="rounded-xl p-6 mb-6 text-center" style={{ backgroundColor: '#fce4ec' }}>
-            <div className="text-5xl font-bold mb-2" style={{ color: '#b0004e' }}>{results.score}%</div>
-            <p className="text-xl mb-2" style={{ color: '#2d2d2d' }}>Your Cancer Knowledge Score</p>
-            <p style={{ color: '#2d2d2d' }}>You got {results.correctAnswers} out of {results.totalQuestions} questions correct</p>
-          </div>
+          <div className={`rounded-2xl px-6 py-8 mb-10 shadow-inner text-center ${scoreColor}`}>
+            <div className="text-6xl font-bold mb-2 tracking-tight">{results.score}</div>
+            <p className="text-lg font-medium mb-2">Your Cancer Knowledge Score</p>
+            <p className="text-sm">You got {results.correctAnswers} out of 10 questions correct</p>
 
           <div className="text-white p-6 rounded-lg mb-8 text-center" style={{ background: 'linear-gradient(135deg, #b0004e, #8A2BE2)' }}>
               <h3 className="text-xl font-bold mb-2">🎯 Want to know YOUR actual cancer risk?</h3>
@@ -149,23 +161,27 @@ const KnowledgeQuiz = () => {
                 Take the Lifestyle Quiz
               </Link>
           </div>
-          
-          <div className="mt-8 pt-6 border-t" style={{borderColor: '#fce4ec'}}>
-            <h3 className="text-2xl font-bold text-center mb-6" style={{ color: '#b0004e' }}>Review Your Answers</h3>
-            <div className="space-y-6 max-h-96 overflow-y-auto" style={{paddingRight: '1rem'}}>
-              {results.explanations.map((exp) => (
-                <div key={exp.questionId} className="p-4 rounded-lg" style={{ backgroundColor: exp.isCorrect ? 'rgba(236, 253, 245, 0.7)' : 'rgba(254, 242, 242, 0.7)', border: `1px solid ${exp.isCorrect ? '#a7f3d0' : '#fecaca'}`}}>
-                  <p className="font-semibold text-lg mb-3" style={{ color: '#2d2d2d' }}>{exp.questionText}</p>
-                  
-                  <div className="flex items-center text-sm p-3 rounded-md mb-3" style={{ backgroundColor: 'rgba(255,255,255,0.7)' }}>
-                    {exp.isCorrect ? <CheckCircle className="w-5 h-5 mr-2" style={{color: '#10b981'}} /> : <XCircle className="w-5 h-5 mr-2" style={{color: '#ef4444'}} />}
-                    <span>Your answer: <span className="font-semibold">{exp.selectedAnswer}</span></span>
+
+          <div className="mt-12 pt-6 border-t border-gray-100">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Review Your Answers</h3>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {results.explanations
+                .filter((exp) => exp.selectedAnswer && exp.selectedAnswer !== 'Not answered')
+                .map((exp) => (
+                  <div key={exp.questionId} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
+                        exp.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                      }`}>
+                        {exp.isCorrect ? '✓' : '✗'}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800 mb-1">{exp.questionText}</p>
+                        <p className="text-sm text-gray-600 mb-1">Your answer: {exp.selectedAnswer}</p>
+                        <p className="text-sm text-gray-700">{exp.explanation}</p>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <p className="text-sm" style={{ color: '#2d2d2d', lineHeight: '1.6' }}>
-                    <span className="font-bold">Explanation: </span>{exp.explanation}
-                  </p>
-                </div>
               ))}
             </div>
           </div>
