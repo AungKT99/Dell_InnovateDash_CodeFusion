@@ -8,7 +8,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 
 // Dashboard + other features
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/Dashboard-1';
 import Profile from './components/Profile';
 import FAQ from './components/FAQ';
 import Index from './components/Index';
