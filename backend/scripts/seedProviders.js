@@ -435,59 +435,41 @@ const seedProviders = async () => {
     await HealthcareProvider.deleteMany({});
     await ScreeningTest.deleteMany({});
     await ProviderTestPackage.deleteMany({});
-    console.log('Cleared existing provider data');
+    console.log('Cleared existing provider/test/package data');
 
-    // Seed Healthcare Providers
-    const savedProviders = await HealthcareProvider.insertMany(healthcareProviders);
-    console.log(`Created ${savedProviders.length} healthcare providers`);
+    // Insert providers
+    await HealthcareProvider.insertMany(healthcareProviders);
+    console.log('Inserted healthcare providers');
 
-    // Seed Screening Tests
-    const savedTests = await ScreeningTest.insertMany(screeningTests);
-    console.log(`Created ${savedTests.length} screening tests`);
+    // Insert tests
+    await ScreeningTest.insertMany(screeningTests);
+    console.log('Inserted screening tests');
 
-    // Create provider-test packages with proper ObjectId references
-    const packageData = [];
-    for (const pkg of providerTestPackages) {
-      const provider = savedProviders.find(p => p.code === pkg.providerCode);
-      const test = savedTests.find(t => t.code === pkg.testCode);
-      
-      if (provider && test) {
-        packageData.push({
-          ...pkg,
-          providerId: provider._id,
-          testId: test._id
-        });
-      }
-    }
+    // Build maps for provider/test code to _id
+    const allProviders = await HealthcareProvider.find({});
+    const allTests = await ScreeningTest.find({});
 
-    // Remove temporary fields
-    packageData.forEach(pkg => {
-      delete pkg.providerCode;
-      delete pkg.testCode;
-    });
+    const providersMap = {};
+    const testsMap = {};
 
-    const savedPackages = await ProviderTestPackage.insertMany(packageData);
-    console.log(`Created ${savedPackages.length} provider test packages`);
+    allProviders.forEach(p => providersMap[p.code] = p._id);
+    allTests.forEach(t => testsMap[t.code] = t._id);
 
-    console.log('\n=== SEEDING SUMMARY ===');
-    console.log(`Healthcare Providers: ${savedProviders.length}`);
-    console.log(`Screening Tests: ${savedTests.length}`);
-    console.log(`Provider-Test Packages: ${savedPackages.length}`);
-    
-    // Display some sample data
-    console.log('\n=== SAMPLE PACKAGES ===');
-    const samplePackages = await ProviderTestPackage.find()
-      .populate('providerId', 'name code')
-      .populate('testId', 'name code')
-      .limit(3);
-    
-    samplePackages.forEach(pkg => {
-      console.log(`${pkg.testId.name} at ${pkg.providerId.name}: ${pkg.packageUrl}`);
-    });
+    // Resolve providerId and testId
+    const resolvedPackages = providerTestPackages.map(pkg => ({
+      ...pkg,
+      providerId: providersMap[pkg.providerCode],
+      testId: testsMap[pkg.testCode]
+    }));
 
+    // Insert packages
+    await ProviderTestPackage.insertMany(resolvedPackages);
+    console.log('Inserted provider test packages');
+
+    console.log('\n🎉 SUCCESS! All data inserted correctly.');
     process.exit(0);
   } catch (err) {
-    console.error('Error seeding providers:', err);
+    console.error('❌ Error seeding data:', err);
     process.exit(1);
   }
 };
