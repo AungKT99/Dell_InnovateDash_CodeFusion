@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // ADD THIS LINE
 import { useAuth } from '../contexts/AuthContext';
 import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw } from 'lucide-react';
 import Header from './Header';
+import RiskSimulator from './RiskSimulator';
 import { getDashboardRiskData } from '../api/dashboardApi';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
@@ -350,7 +351,7 @@ const Dashboard = () => {
 
   const tabs = [
     { id: 0, name: 'Risk Assessment', icon: AlertTriangle, component: <CancerRiskAssessment /> },
-    { id: 1, name: 'Section 2', icon: Activity, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2><p className="text-gray-600">Content for second section will go here</p></div> },
+    { id: 1, name: 'Risk Simulator', icon: Activity, component: <RiskSimulator /> },
     { id: 2, name: 'Section 3', icon: Target, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2><p className="text-gray-600">Content for third section will go here</p></div> }
   ];
 
@@ -384,9 +385,8 @@ const Dashboard = () => {
             <div className="h-full">
               <CancerRiskAssessment />
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2>
-              <p className="text-gray-600">Content for second section will go here</p>
+            <div className="h-full">
+              <RiskSimulator />
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 h-full">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2>
