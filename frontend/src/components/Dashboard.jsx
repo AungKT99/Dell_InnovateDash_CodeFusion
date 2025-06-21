@@ -350,20 +350,6 @@ const CancerRiskAssessment = () => {
   );
 };
 
-// NEW: Risk Simulator component for dashboard
-const RiskSimulator = () => {
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Risk Simulator</h2>
-        <Target className="w-6 h-6 text-blue-600" />
-      </div>
-      
-      
-    </div>
-  );
-};
-
 // NEW: Screening Overview component for dashboard
 // Updated ScreeningOverview component for Dashboard.jsx
 const ScreeningOverview = () => {
