@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, Calendar, MapPin } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, ClipboardCheck} from 'lucide-react';
 import Header from './Header';
 import { getDashboardRiskData } from '../api/dashboardApi';
 import { getScreeningChecklist, getAllAvailableScreenings } from '../api/screeningApi'; 
@@ -517,15 +517,42 @@ const ScreeningOverview = () => {
         <h2 className="text-xl font-bold text-gray-800">YOUR SCREENING CHECKLIST</h2>
       </div>
 
-      {/* Screening Items */}
+     {/* Screening Items or No Recommendations Message */}
       <div className="space-y-4">
-        {displayItems.map((item, index) => (
-          <ScreeningCard 
-            key={`${item.testName}-${index}`} 
-            item={item} 
-            isRecommended={index < sortedRecommendedItems.length}
-          />
-        ))}
+        {sortedRecommendedItems.length > 0 ? (
+          // Show recommended items
+          displayItems.map((item, index) => (
+            <ScreeningCard 
+              key={`${item.testName}-${index}`} 
+              item={item} 
+              isRecommended={index < sortedRecommendedItems.length}
+            />
+          ))
+        ) : !showAllScreenings ? (
+          // Show message when no recommendations
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ClipboardCheck className="w-8 h-8 text-green-600" />
+            </div>
+            {/* <h3 className="text-lg font-semibold text-gray-900 mb-2">Great News!</h3> */}
+            <p className="text-gray-600 mb-4">
+              No urgent screenings are needed based on your current risk, but we strongly recommend regular cancer screenings 
+              for early detection.
+            </p>
+            <p className="text-sm text-gray-500">
+              You can view all available screening options below.
+            </p>
+          </div>
+        ) : (
+          // Show all available screenings when requested
+          allAvailableScreenings.map((item, index) => (
+            <ScreeningCard 
+              key={`${item.testName}-${index}`} 
+              item={item} 
+              isRecommended={false}
+            />
+          ))
+        )}
       </div>
 
       {/* Loading additional screenings */}
@@ -537,7 +564,7 @@ const ScreeningOverview = () => {
       )}
 
       {/* Show More Button - Show all screening tests toggle */}
-     <div className="mt-6 text-center">
+      <div className="mt-6 text-center">
         {sortedRecommendedItems.length > 0 ? (
           // User HAS recommendations - show toggle button
           <button 
@@ -646,11 +673,11 @@ const ScreeningCard = ({ item, isRecommended }) => {
       </div>
 
       {/* Recommended Provider */}
-      {item.recommendedPackage && (
+      {/* {item.recommendedPackage && (
         <div className="text-xs text-gray-500">
           Recommended: {item.recommendedPackage.provider.name}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
