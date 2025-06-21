@@ -1,14 +1,15 @@
+// backend/server.js - Add the missing screening route
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
-
 
 // Import routes
 const authRoutes = require('./routes/authRoutes'); //Auth Route
 const quizRoutes = require('./routes/quiz'); //Quiz Route
 const lifeStyleQuizRoutes = require('./routes/lifeStyleQuiz'); // LifeStyleQuiz Route
 const dashboardRoutes = require('./routes/dashboard');
+const screeningRoutes = require('./routes/screeningRecommendations'); // ADD THIS LINE
 
 // Connect to database
 connectDB();
@@ -30,8 +31,9 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quiz', quizRoutes);
-app.use('/api/lifestyle-quiz', lifeStyleQuizRoutes); // ADD THIS LINE
+app.use('/api/lifestyle-quiz', lifeStyleQuizRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/screening', screeningRoutes); // ADD THIS LINE
 
 // Basic route for testing
 app.get('/', (req, res) => {
