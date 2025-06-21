@@ -14,7 +14,7 @@ const Index = () => {
             <h1>Your Health Journey Starts Here</h1>
             <p>Empower+ guides you with personalized steps, emotional motivation, and social support. Start transforming your health today.</p>
             <div className="hero-buttons">
-              <Link to="/onboarding" className="start-btn">Start My Journey</Link>
+              <Link to="/LifeStyleQuiz" className="start-btn">Start My Journey</Link>
               <Link to="/faq" className="learn-btn">Learn More</Link>
             </div>
           </div>

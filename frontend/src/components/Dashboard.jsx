@@ -11,16 +11,36 @@ const CancerRiskHelpers = {
   getRiskColors: (level, colors) => {
     switch(level) {
       case "HIGH RISK": 
-      case "HIGH_RISK": 
-        return colors?.highRisk || { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" };
+      case "HIGH_RISK":
+        return { 
+          primary: "#b0004e", 
+          light: "rgba(176, 0, 78, 0.1)", 
+          border: "rgba(176, 0, 78, 0.2)", 
+          hover: "#6a0dad" 
+        };
       case "MODERATE RISK": 
-      case "MODERATE_RISK": 
-        return colors?.moderateRisk || { primary: "#D97706", light: "#FFF7ED", border: "#FED7AA", hover: "#B45309" };
+      case "MODERATE_RISK":
+        return { 
+          primary: "#f472b6", 
+          light: "rgba(244, 114, 182, 0.1)", 
+          border: "rgba(244, 114, 182, 0.2)", 
+          hover: "#b0004e" 
+        };
       case "LOW RISK": 
-      case "LOW_RISK": 
-        return colors?.lowRisk || { primary: "#059669", light: "#ECFDF5", border: "#A7F3D0", hover: "#047857" };
+      case "LOW_RISK":
+        return { 
+          primary: "#f472b6", 
+          light: "rgba(244, 114, 182, 0.1)", 
+          border: "rgba(244, 114, 182, 0.2)", 
+          hover: "#ec4899" 
+        };
       default: 
-        return colors?.highRisk || { primary: "#DC2626", light: "#FEF2F2", border: "#FECACA", hover: "#B91C1C" };
+        return { 
+          primary: "#b0004e", 
+          light: "rgba(176, 0, 78, 0.1)", 
+          border: "rgba(176, 0, 78, 0.2)", 
+          hover: "#6a0dad" 
+        };
     }
   }
 };

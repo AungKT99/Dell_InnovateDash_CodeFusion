@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Heart, Loader2, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { getActiveLifestyleQuiz, submitLifestyleQuizAttempt } from '../api/lifeStyleQuizApi';
+import '../styles/onboarding.css';
 
 const LifestyleQuiz = () => {
   const [quiz, setQuiz] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -22,6 +24,20 @@ const LifestyleQuiz = () => {
         const response = await getActiveLifestyleQuiz();
         if (response.success) {
           setQuiz(response.data);
+          // Group questions by category
+          const grouped = response.data.questions.reduce((acc, q) => {
+            acc[q.category] = acc[q.category] || [];
+            acc[q.category].push(q);
+            return acc;
+          }, {});
+          const categoryOrder = ['primary', 'secondary', 'tertiary'];
+          const sortedCategories = categoryOrder
+            .map(categoryName => ({
+              name: categoryName,
+              questions: grouped[categoryName] || [],
+            }))
+            .filter(c => c.questions.length > 0);
+          setCategories(sortedCategories);
         } else {
           setError('Failed to load lifestyle quiz');
         }
@@ -43,15 +59,15 @@ const LifestyleQuiz = () => {
     }));
   };
 
-  const nextQuestion = () => {
-    if (currentQuestion < quiz.questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
+  const nextCategory = () => {
+    if (currentCategoryIndex < categories.length - 1) {
+      setCurrentCategoryIndex(prev => prev + 1);
     }
   };
 
-  const prevQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
+  const prevCategory = () => {
+    if (currentCategoryIndex > 0) {
+      setCurrentCategoryIndex(prev => prev - 1);
     }
   };
 
@@ -59,7 +75,6 @@ const LifestyleQuiz = () => {
     try {
       setSubmitting(true);
       
-      // Convert answers to the format expected by backend
       const formattedAnswers = Object.entries(answers).map(([qid, optionId]) => ({
         qid,
         optionId
@@ -85,56 +100,65 @@ const LifestyleQuiz = () => {
   };
 
   const restartQuiz = () => {
-    setCurrentQuestion(0);
+    setCurrentCategoryIndex(0);
     setAnswers({});
     setResults(null);
     setShowResults(false);
     setError(null);
   };
 
-  const getRiskIcon = (riskLevel) => {
+  const getRiskTheme = (riskLevel) => {
     switch (riskLevel) {
       case 'LOW_RISK':
-        return <CheckCircle className="w-16 h-16" style={{ color: '#059669' }} />;
+        return {
+          icon: <CheckCircle className="w-16 h-16" style={{ color: '#f472b6' }} />,
+          color: '#f472b6', // light pink
+          background: '#f472b6',
+        };
       case 'MODERATE_RISK':
-        return <Shield className="w-16 h-16" style={{ color: '#D97706' }} />;
+        return {
+          icon: <Shield className="w-16 h-16" style={{ color: '#b0004e' }} />,
+          color: '#b0004e',
+          background: 'linear-gradient(135deg, #f472b6, #b0004e)',
+        };
       case 'HIGH_RISK':
-        return <AlertTriangle className="w-16 h-16" style={{ color: '#DC2626' }} />;
+        return {
+          icon: <AlertTriangle className="w-16 h-16" style={{ color: '#b0004e' }} />,
+          color: '#b0004e',
+          background: 'linear-gradient(135deg, #b0004e, #6a0dad)',
+        };
       default:
-        return <Heart className="w-16 h-16 text-gray-600" />;
+        return {
+          icon: <Heart className="w-16 h-16" style={{ color: '#b0004e' }} />,
+          color: '#b0004e',
+          background: 'linear-gradient(135deg, #b0004e, #6a0dad)',
+        };
     }
   };
 
-  const progress = quiz ? ((currentQuestion + 1) / quiz.questions.length) * 100 : 0;
-  const isLastQuestion = quiz && currentQuestion === quiz.questions.length - 1;
-  const canProceed = answers[quiz?.questions[currentQuestion]?.id];
-  const allQuestionsAnswered = quiz && Object.keys(answers).length === quiz.questions.length;
-
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{backgroundColor: '#fff8fc'}}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-green-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading your Lifestyle Risk Assessment...</p>
+          <Loader2 className="w-12 h-12 animate-spin" style={{color: '#b0004e'}} />
+          <p className="mt-4" style={{color: '#2d2d2d'}}>Loading your Lifestyle Risk Assessment...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="text-red-500 mb-4">
-            <Heart className="w-16 h-16 mx-auto" />
+      <div className="min-h-screen flex items-center justify-center p-4" style={{backgroundColor: '#fff8fc'}}>
+        <div className="onboarding-box w-full text-center">
+          <div className="mb-4 inline-block">
+            <Heart className="w-16 h-16" style={{ color: '#b0004e' }} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Oops!</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#b0004e' }}>Oops! Something went wrong.</h2>
+          <p className="mb-6" style={{color: '#2d2d2d'}}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+            className="btn"
           >
             Try Again
           </button>
@@ -143,90 +167,72 @@ const LifestyleQuiz = () => {
     );
   }
 
-  // Results screen
   if (showResults && results) {
+    const riskTheme = getRiskTheme(results.riskLevel);
+    
+    const isGradient = riskTheme.background.includes('gradient');
+    const scoreStyle = isGradient
+      ? {
+          background: riskTheme.background,
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          color: 'transparent',
+          display: 'inline-block',
+        }
+      : {
+          color: riskTheme.color,
+        };
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full p-8">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#fff8fc' }}>
+        <div className="onboarding-box w-full">
           {/* Results Header */}
           <div className="text-center mb-8">
-            <div className="mb-4">
-              {getRiskIcon(results.riskLevel)}
+            <div className="mb-4 inline-block">
+              {riskTheme.icon}
             </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Assessment Complete!</h2>
-            <p className="text-gray-600">Your personalized cancer risk assessment</p>
+            <h2 className="text-3xl font-bold" style={{ color: '#b0004e' }}>Assessment Complete!</h2>
+            <p style={{ color: '#2d2d2d' }}>Your personalized cancer risk assessment</p>
           </div>
 
           {/* Risk Score */}
-          <div className="bg-gray-50 rounded-xl p-6 mb-6">
+          <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#fce4ec' }}>
             <div className="text-center">
-              <div 
+              <div
                 className="text-5xl font-bold mb-2"
-                style={{ color: results.riskColor }}
+                style={scoreStyle}
               >
                 {results.percentageScore}%
               </div>
-              <p className="text-xl text-gray-700 mb-2">Cancer Risk Score</p>
-              <div 
+              <p className="text-xl mb-2" style={{ color: '#2d2d2d' }}>Cancer Risk Score</p>
+              <div
                 className="inline-block px-4 py-2 rounded-full text-white font-semibold mb-4"
-                style={{ backgroundColor: results.riskColor }}
+                style={{ background: riskTheme.background }}
               >
                 {results.riskLabel}
               </div>
-              <p className="text-gray-600">
+              <p style={{ color: '#2d2d2d' }}>
                 {results.riskDescription}
               </p>
             </div>
           </div>
 
-          {/* Category Breakdown */}
-          {/* <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Factor Categories</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                <span className="font-medium text-gray-700">Primary Factors (Age, Genetics)</span>
-                <span className="font-bold text-red-600">
-                  {results.categoryBreakdown.primary.percentage}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                <span className="font-medium text-gray-700">Secondary Factors (Lifestyle)</span>
-                <span className="font-bold text-orange-600">
-                  {results.categoryBreakdown.secondary.percentage}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <span className="font-medium text-gray-700">Tertiary Factors (Habits)</span>
-                <span className="font-bold text-yellow-600">
-                  {results.categoryBreakdown.tertiary.percentage}%
-                </span>
-              </div>
-            </div>
-          </div> */}
-
           {/* Action Buttons */}
           <div className="text-center space-y-4">
-            <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-lg mb-6">
+            <div className="text-white p-6 rounded-lg mb-6" style={{ backgroundColor: '#b0004e' }}>
               <h3 className="text-xl font-bold mb-2">🎯 Secure Your Health with Early Screening</h3>
-              <p className="text-green-100 mb-4">
+              <p className="opacity-90 mb-4">
                 Finding cancer early usually means simpler treatment, lower costs, and far better survival—book your screening today.
-
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/dashboard"
-                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors text-center"
-              >
+            <div className="buttons">
+               <button onClick={restartQuiz} className="btn">
+                  Retake Assessment
+                </button>
+              <Link to="/dashboard" className="btn">
                 View Dashboard
               </Link>
-              <button
-                onClick={restartQuiz}
-                className="flex-1 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Retake Assessment
-              </button>
             </div>
           </div>
         </div>
@@ -235,127 +241,125 @@ const LifestyleQuiz = () => {
   }
 
   // Quiz interface
-  if (!quiz) return null;
+  if (!quiz || !categories || categories.length === 0) return null;
 
-  const currentQ = quiz.questions[currentQuestion];
+  const currentCategory = categories[currentCategoryIndex];
+  const progress = ((currentCategoryIndex + 1) / categories.length) * 100;
+  const isLastCategory = currentCategoryIndex === categories.length - 1;
+  const allQuestionsInCategoryAnswered = currentCategory.questions.every(
+    (q) => answers[q.id]
+  );
+  const allQuestionsAnswered =
+    quiz.questions.length === Object.keys(answers).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full">
+    <div className="min-h-screen" style={{ backgroundColor: '#fff8fc' }}>
+      <div className="onboarding-box">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="border-b" style={{ borderColor: '#fce4ec', paddingBottom: '24px', marginBottom: '24px' }}>
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">{quiz.title}</h1>
-            <span className="text-sm text-gray-500">
-              {currentQuestion + 1} of {quiz.questions.length}
+            <h1 className="text-2xl font-bold" style={{ color: '#b0004e' }}>{quiz.title}</h1>
+            <span className="text-sm" style={{ color: '#b0004e' }}>
+              Category {currentCategoryIndex + 1} of {categories.length}
             </span>
           </div>
-          
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-green-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
+          <div className="w-full rounded-full h-2" style={{ backgroundColor: '#fce4ec' }}>
+            <div
+              className="h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: '#b0004e',
+              }}
             ></div>
           </div>
         </div>
 
-        {/* Question */}
-        <div className="p-6">
-          <div className="flex items-center mb-4">
-            {currentQ.icon && (
-              <span className="text-2xl mr-3">{currentQ.icon}</span>
-            )}
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-800">
-                {currentQ.text}
-              </h2>
-              {currentQ.subText && (
-                <p className="text-sm text-gray-600 mt-2">{currentQ.subText}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Category Badge */}
-          <div className="mb-6">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-              currentQ.category === 'primary' 
-                ? 'bg-red-100 text-red-800' 
-                : currentQ.category === 'secondary'
-                ? 'bg-orange-100 text-orange-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}>
-              {currentQ.category.charAt(0).toUpperCase() + currentQ.category.slice(1)} Factor
-            </span>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-3">
-            {currentQ.options.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => handleAnswerSelect(currentQ.id, option.id)}
-                className={`w-full p-4 text-left rounded-lg border-2 transition-all hover:shadow-md ${
-                  answers[currentQ.id] === option.id
-                    ? 'border-green-500 bg-green-50 text-green-800'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    answers[currentQ.id] === option.id
-                      ? 'border-green-500 bg-green-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {answers[currentQ.id] === option.id && (
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    )}
-                  </div>
-                  <span className="font-medium">{option.text}</span>
+        {/* Questions for the current category */}
+        <div>
+          {currentCategory.questions.map(currentQ => (
+            <div key={currentQ.id} className="question" style={{ marginBottom: '24px' }}>
+              <div className="flex items-center mb-4">
+                {currentQ.icon && (
+                  <span className="text-2xl mr-3">{currentQ.icon}</span>
+                )}
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold" style={{ color: '#b0004e' }}>
+                    {currentQ.text}
+                  </h2>
+                  {currentQ.subText && (
+                    <p className="text-sm" style={{ color: '#2d2d2d', marginTop: '8px' }}>{currentQ.subText}</p>
+                  )}
                 </div>
-              </button>
-            ))}
-          </div>
+              </div>
+
+              {/* Category Badge */}
+              <div className="mb-6">
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{
+                    backgroundColor: '#fce4ec',
+                    color: '#b0004e',
+                  }}
+                >
+                  {currentQ.category.charAt(0).toUpperCase() + currentQ.category.slice(1)} Factor
+                </span>
+              </div>
+
+              {/* Options */}
+              <div className="options">
+                {currentQ.options.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleAnswerSelect(currentQ.id, option.id)}
+                    className={`option${answers[currentQ.id] === option.id ? ' selected' : ''}`}
+                  >
+                    {option.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Navigation */}
-        <div className="p-6 border-t border-gray-200">
-          <div className="flex justify-between items-center">
-            <button
-              onClick={prevQuestion}
-              disabled={currentQuestion === 0}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Previous
-            </button>
 
-            {isLastQuestion ? (
-              <button
-                onClick={submitQuiz}
-                disabled={!allQuestionsAnswered || submitting}
-                className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Calculating...
-                  </>
-                ) : (
-                  'Get My Risk Assessment'
-                )}
-              </button>
-            ) : (
-              <button
-                onClick={nextQuestion}
-                disabled={!canProceed}
-                className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+        {/* Navigation */}
+        <div className="buttons">
+          <button
+            onClick={prevCategory}
+            disabled={currentCategoryIndex === 0}
+            className="btn"
+            style={{ visibility: currentCategoryIndex === 0 ? 'hidden' : 'visible' }}
+          >
+            <ChevronLeft className="w-5 h-5" style={{ display: 'inline', verticalAlign: 'middle' }} />
+            &nbsp;Previous
+          </button>
+
+          {isLastCategory ? (
+            <button
+              onClick={submitQuiz}
+              disabled={!allQuestionsAnswered || submitting}
+              className="btn"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ display: 'inline', verticalAlign: 'middle' }} />
+                  &nbsp;Calculating...
+                </>
+              ) : (
+                'Get My Risk Assessment'
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={nextCategory}
+              disabled={!allQuestionsInCategoryAnswered}
+              className="btn"
+            >
+              Next&nbsp;
+              <ChevronRight className="w-5 h-5" style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </button>
+          )}
         </div>
       </div>
     </div>
