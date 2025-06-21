@@ -259,9 +259,9 @@ const LifestyleQuiz = () => {
         <div className="border-b" style={{ borderColor: '#fce4ec', paddingBottom: '24px', marginBottom: '24px' }}>
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold" style={{ color: '#b0004e' }}>{quiz.title}</h1>
-            <span className="text-sm" style={{ color: '#b0004e' }}>
+            {/* <span className="text-sm" style={{ color: '#b0004e' }}>
               Category {currentCategoryIndex + 1} of {categories.length}
-            </span>
+            </span> */}
           </div>
           {/* Progress Bar */}
           <div className="w-full rounded-full h-2" style={{ backgroundColor: '#fce4ec' }}>
