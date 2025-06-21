@@ -319,22 +319,24 @@ const CancerRiskAssessment = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="risk-actions">
+        
+        {/* <div className="risk-actions"> */}
           {/* Primary CTA - Risk Simulator */}
-          <button className="risk-btn primary">
+          {/* <button className="risk-btn primary">
             <span>{uiText.primaryButton || 'Try Risk Simulator'}</span>
             <ChevronRight className="btn-icon" />
-          </button>
+          </button> */}
           
           {/* Secondary CTA - View Screening Recommendations */}
-          <Link 
+          {/* <Link 
             to="/screening-checklist"
             className="risk-btn secondary"
           >
             <span>{uiText.secondaryButton || 'View Screening Recommendations'}</span>
             <ChevronRight className="btn-icon" />
           </Link>
-        </div>
+        </div> */}
+        
         
         {/* Urgency message */}
         <div className="risk-urgency">
@@ -357,38 +359,7 @@ const RiskSimulator = () => {
         <Target className="w-6 h-6 text-blue-600" />
       </div>
       
-      <p className="text-gray-600 mb-6">
-        Explore how lifestyle changes could impact your cancer risk over time.
-      </p>
       
-      <div className="space-y-4">
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-medium text-gray-900 mb-2">🥗 Diet Improvements</h3>
-          <p className="text-sm text-gray-600">See how increasing fruits & vegetables affects your risk</p>
-        </div>
-        
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-medium text-gray-900 mb-2">🏃‍♀️ Exercise More</h3>
-          <p className="text-sm text-gray-600">Calculate risk reduction from regular physical activity</p>
-        </div>
-        
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-medium text-gray-900 mb-2">🚭 Lifestyle Changes</h3>
-          <p className="text-sm text-gray-600">Model impact of quitting smoking & reducing alcohol</p>
-        </div>
-      </div>
-      
-      <div className="mt-6">
-        <button className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all font-semibold">
-          Launch Risk Simulator
-        </button>
-      </div>
-      
-      <div className="mt-4 p-3 bg-pink-50 rounded-lg">
-        <p className="text-sm text-pink-800">
-          💡 Interactive tool to see potential risk improvements
-        </p>
-      </div>
     </div>
   );
 };
@@ -566,8 +537,9 @@ const ScreeningOverview = () => {
       )}
 
       {/* Show More Button - Show all screening tests toggle */}
-      {sortedRecommendedItems.length > 0 && (
-        <div className="mt-6 text-center">
+     <div className="mt-6 text-center">
+        {sortedRecommendedItems.length > 0 ? (
+          // User HAS recommendations - show toggle button
           <button 
             onClick={handleShowAllScreenings}
             disabled={loadingAllScreenings}
@@ -578,8 +550,17 @@ const ScreeningOverview = () => {
               : 'Display All Available Screenings'
             }
           </button>
-        </div>
-      )}
+        ) : (
+          // User has NO recommendations - show button to see all available
+          <button 
+            onClick={handleShowAllScreenings}
+            disabled={loadingAllScreenings}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium"
+          >
+            {loadingAllScreenings ? 'Loading...' : 'View All Available Screenings'}
+          </button>
+        )}
+      </div>
 
       {/* Footer */}
       <div className="mt-8 pt-4 border-t border-gray-200 text-center">
@@ -633,14 +614,16 @@ const ScreeningCard = ({ item, isRecommended }) => {
         </h3>
       </div>
       
-      {/* Priority line */}
-      <div className="mb-3 text-sm text-gray-700">
-        Priority: {item.priority}
-      </div>
+      {/* Priority line - ONLY show for recommended items */}
+      {isRecommended && (
+        <div className="mb-3 text-sm text-gray-700">
+          Priority: {item.priority}
+        </div>
+      )}
 
-      {/* Why Section */}
+      {/* Description Section */}
       <div className="mb-3">
-        <span className="text-sm font-medium text-gray-700">Why: </span>
+        <span className="text-sm font-medium text-gray-700">Description: </span>
         <span className="text-sm text-gray-600">{item.whyText}</span>
       </div>
 
