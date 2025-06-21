@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Brain, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Brain, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { getActiveQuiz, submitQuizAttempt } from '../api/quizApi';
+import '../styles/onboarding.css';
 
 const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
 
@@ -93,10 +94,10 @@ const KnowledgeQuiz = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-red-50">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{backgroundColor: '#fff8fc'}}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium text-lg">Loading your Cancer IQ Quiz...</p>
+          <Loader2 className="w-12 h-12 animate-spin" style={{color: '#b0004e'}} />
+          <p className="mt-4" style={{color: '#2d2d2d'}}>Loading your Cancer IQ Quiz...</p>
         </div>
       </div>
     );
@@ -104,76 +105,75 @@ const KnowledgeQuiz = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-red-50">
-        <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md text-center">
-          <Brain className="w-16 h-16 text-red-600 mx-auto mb-4" />
-          <h2 className="text-3xl font-semibold text-gray-900 mb-3">Oops!</h2>
-          <p className="text-gray-600 mb-6 text-base">{error}</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{backgroundColor: '#fff8fc'}}>
+        <div className="onboarding-box w-full text-center">
+          <div className="mb-4 inline-block">
+            <Brain className="w-16 h-16" style={{ color: '#b0004e' }} />
+          </div>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#b0004e' }}>Oops! Something went wrong.</h2>
+          <p className="mb-6" style={{color: '#2d2d2d'}}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition duration-200 font-semibold shadow-md"
-          >Try Again</button>
+            className="btn"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   if (showResults && results) {
-    const scoreColor = getScoreLevelColor(results.score);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-red-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-10">
-          <div className="text-center mb-10">
-            <Brain className="w-16 h-16 text-red-600 mx-auto mb-4" />
-            <h2 className="text-4xl font-semibold text-gray-900 mb-2">Quiz Complete!</h2>
-          </div>
-
-          <div className={`rounded-2xl px-6 py-8 mb-10 shadow-inner text-center ${scoreColor}`}>
-            <div className="text-6xl font-bold mb-2 tracking-tight">{results.score}</div>
-            <p className="text-lg font-medium mb-2">Your Cancer Knowledge Score</p>
-            <p className="text-sm">You got {results.correctAnswers} out of {results.totalQuestions} questions correct</p>
-          </div>
-
-          <div className="text-center space-y-6">
-            <div className="bg-gradient-to-r from-red-50 to-purple-100 border border-purple-200 p-6 rounded-2xl shadow-sm">
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">🎯 Want to know YOUR actual cancer risk?</h3>
-              <p className="text-gray-700 mb-2 text-base leading-relaxed">Get a personalized risk assessment based on your lifestyle, family history, and health habits — with practical tips to reduce your risk.</p>
-              <p className="text-sm text-purple-500 font-medium">🔒 100% confidential</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#fff8fc' }}>
+        <div className="onboarding-box w-full">
+          <div className="text-center mb-8">
+            <div className="mb-4 inline-block">
+              <Brain className="w-16 h-16" style={{ color: '#b0004e' }}/>
             </div>
+            <h2 className="text-3xl font-bold" style={{ color: '#b0004e' }}>Quiz Complete!</h2>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register" className="bg-gradient-to-r from-red-500 to-purple-600 text-white px-8 py-4 rounded-2xl hover:from-red-600 hover:to-purple-700 transition-all font-bold text-lg shadow-xl transform hover:scale-105 text-center no-underline">
-                🚀 Calculate My Personal Risk
+          <div className="rounded-xl p-6 mb-6 text-center" style={{ backgroundColor: '#fce4ec' }}>
+            <div className="text-5xl font-bold mb-2" style={{ color: '#b0004e' }}>{results.score}%</div>
+            <p className="text-xl mb-2" style={{ color: '#2d2d2d' }}>Your Cancer Knowledge Score</p>
+            <p style={{ color: '#2d2d2d' }}>You got {results.correctAnswers} out of {results.totalQuestions} questions correct</p>
+          </div>
+
+          <div className="text-white p-6 rounded-lg mb-8 text-center" style={{ background: 'linear-gradient(135deg, #b0004e, #8A2BE2)' }}>
+              <h3 className="text-xl font-bold mb-2">🎯 Want to know YOUR actual cancer risk?</h3>
+              <p className="opacity-90 mb-4 max-w-xl mx-auto">
+                Get a personalized risk assessment based on your lifestyle, family history, and health habits — with practical tips to reduce your risk.
+              </p>
+              <Link to="/lifestyle_quiz" className="inline-block bg-white font-bold px-6 py-3 rounded-lg transition-colors" style={{color: '#b0004e', boxShadow: '0 4px 14px 0 rgba(0,0,0,0.1)'}}>
+                Take the Lifestyle Quiz
               </Link>
-              <button
-                onClick={restartQuiz}
-                className="bg-white border border-purple-300 text-purple-700 px-6 py-3 rounded-2xl hover:bg-purple-50 transition-colors font-semibold shadow-sm hover:shadow-md"
-              >🔁 Retake Quiz</button>
-            </div>
-
-            <p className="text-xs text-gray-400">Join thousands who’ve already discovered their risk level</p>
           </div>
-
-          <div className="mt-12 pt-6 border-t border-gray-100">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Review Your Answers</h3>
-            <div className="space-y-4 max-h-96 overflow-y-auto">
+          
+          <div className="mt-8 pt-6 border-t" style={{borderColor: '#fce4ec'}}>
+            <h3 className="text-2xl font-bold text-center mb-6" style={{ color: '#b0004e' }}>Review Your Answers</h3>
+            <div className="space-y-6 max-h-96 overflow-y-auto" style={{paddingRight: '1rem'}}>
               {results.explanations.map((exp) => (
-                <div key={exp.questionId} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
-                      exp.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                    }`}>
-                      {exp.isCorrect ? '✓' : '✗'}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-800 mb-1">{exp.questionText}</p>
-                      <p className="text-sm text-gray-600 mb-1">Your answer: {exp.selectedAnswer}</p>
-                      <p className="text-sm text-gray-700">{exp.explanation}</p>
-                    </div>
+                <div key={exp.questionId} className="p-4 rounded-lg" style={{ backgroundColor: exp.isCorrect ? 'rgba(236, 253, 245, 0.7)' : 'rgba(254, 242, 242, 0.7)', border: `1px solid ${exp.isCorrect ? '#a7f3d0' : '#fecaca'}`}}>
+                  <p className="font-semibold text-lg mb-3" style={{ color: '#2d2d2d' }}>{exp.questionText}</p>
+                  
+                  <div className="flex items-center text-sm p-3 rounded-md mb-3" style={{ backgroundColor: 'rgba(255,255,255,0.7)' }}>
+                    {exp.isCorrect ? <CheckCircle className="w-5 h-5 mr-2" style={{color: '#10b981'}} /> : <XCircle className="w-5 h-5 mr-2" style={{color: '#ef4444'}} />}
+                    <span>Your answer: <span className="font-semibold">{exp.selectedAnswer}</span></span>
                   </div>
+                  
+                  <p className="text-sm" style={{ color: '#2d2d2d', lineHeight: '1.6' }}>
+                    <span className="font-bold">Explanation: </span>{exp.explanation}
+                  </p>
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="buttons mt-8" style={{ justifyContent: 'center' }}>
+            <button onClick={restartQuiz} className="btn">
+              Retake Quiz
+            </button>
           </div>
         </div>
       </div>
@@ -183,79 +183,81 @@ const KnowledgeQuiz = () => {
   const currentQ = quiz.questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-red-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <h1 className="text-2xl font-bold text-gray-800">{quiz.title}</h1>
-            <span className="text-sm text-gray-500 sm:text-base">
+    <div className="min-h-screen" style={{ backgroundColor: '#fff8fc' }}>
+      <div className="onboarding-box">
+        {/* Header */}
+        <div className="border-b" style={{ borderColor: '#fce4ec', paddingBottom: '24px', marginBottom: '24px' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold" style={{ color: '#b0004e' }}>{quiz.title}</h1>
+            <span className="text-sm" style={{ color: '#b0004e' }}>
               Question {currentQuestion + 1} of {quiz.questions.length}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-            <div className="h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: '#C8102E' }}></div>
+          {/* Progress Bar */}
+          <div className="w-full rounded-full h-2" style={{ backgroundColor: '#fce4ec' }}>
+            <div
+              className="h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: '#b0004e',
+              }}
+            ></div>
           </div>
         </div>
 
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">{currentQ.text}</h2>
-          <div className="space-y-3">
-            {currentQ.options.map((option) => {
-              const isSelected = answers[currentQ.id] === option.id;
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => handleAnswerSelect(currentQ.id, option.id)}
-                  className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                    isSelected
-                      ? 'border-purple-600 bg-purple-100 hover:bg-purple-100 text-purple-900'
-                      : 'border-gray-200 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-purple-600 bg-purple-600' : 'border-gray-300'
-                    }`}>
-                      {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                    </div>
-                    <span className="font-medium">{option.text}</span>
-                  </div>
-                </button>
-              );
-            })}
+        {/* Question */}
+        <div>
+          <h2 className="text-xl font-semibold mb-6" style={{ color: '#b0004e' }}>{currentQ.text}</h2>
+          <div className="options">
+            {currentQ.options.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => handleAnswerSelect(currentQ.id, option.id)}
+                className={`option w-full text-left${answers[currentQ.id] === option.id ? ' selected' : ''}`}
+              >
+                {option.text}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200">
-          <div className="flex justify-between items-center">
+        {/* Navigation */}
+        <div className="buttons">
+          <button
+            onClick={prevQuestion}
+            disabled={currentQuestion === 0}
+            className="btn"
+            style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }}
+          >
+            <ChevronLeft className="w-5 h-5" style={{ display: 'inline', verticalAlign: 'middle' }} />
+            &nbsp;Previous
+          </button>
+
+          {isLastQuestion ? (
             <button
-              onClick={prevQuestion}
-              disabled={currentQuestion === 0}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={submitQuiz}
+              disabled={!allQuestionsAnswered || submitting}
+              className="btn"
             >
-              <ChevronLeft className="w-5 h-5" />
-              Previous
+              {submitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ display: 'inline', verticalAlign: 'middle' }} />
+                  &nbsp;Submitting...
+                </>
+              ) : (
+                'Get My Results'
+              )}
             </button>
-
-            {isLastQuestion ? (
-              <button
-                onClick={submitQuiz}
-                disabled={!allQuestionsAnswered || submitting}
-                className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {submitting ? (<><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>) : 'Get My Results'}
-              </button>
-            ) : (
-              <button
-                onClick={nextQuestion}
-                disabled={!canProceed}
-                className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={nextQuestion}
+              disabled={!canProceed}
+              className="btn"
+            >
+              Next&nbsp;
+              <ChevronRight className="w-5 h-5" style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </button>
+          )}
         </div>
       </div>
     </div>
