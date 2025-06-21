@@ -33,7 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/lifestyle-quiz', lifeStyleQuizRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/screening', screeningRoutes); // ADD THIS LINE
+app.use('/api/screening', screeningRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

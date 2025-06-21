@@ -1,13 +1,13 @@
 
 
-const express = require('express');
-const router = express.Router();
+// Add this import to your existing screeningRecommendations.js route file
 const {
   getScreeningRecommendations,
   getScreeningChecklist,
   getTestInfo,
   getTestProviders,
-  refreshPackages
+  refreshPackages,
+  getAllAvailableScreenings  // Add this line
 } = require('../controllers/screeningRecommendationsController');
 const auth = require('../middleware/auth');
 
@@ -41,6 +41,14 @@ router.get('/test-info/:testCode', getTestInfo);
  * @access  Private
  */
 router.get('/test-providers/:testCode', getTestProviders);
+
+// Add this new route to your existing routes
+/**
+ * @route   GET /api/screening/all-available
+ * @desc    Get all available screening tests from database (not personalized)
+ * @access  Private
+ */
+router.get('/all-available', getAllAvailableScreenings);
 
 /**
  * @route   POST /api/screening/refresh-packages
