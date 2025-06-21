@@ -91,7 +91,7 @@ const buildRiskBreakdown = (answers, quiz) => {
         hasDisplayData: !!question.displayData
       });
 
-      // ONLY include factors with score > 0 (non-zero risk factors)
+      // ONLY include factors with score > 0 (non-zero risk factors) for Section 1
       if (score > 0) {
         riskFactors.push({
           id: answer.qid,
@@ -101,7 +101,8 @@ const buildRiskBreakdown = (answers, quiz) => {
           percentage,
           description: selectedOption.text,
           severity: getSeverity(score),
-          rationale: question.rationale
+          rationale: question.rationale,
+          isModifiable: question.displayData.simulatorConfig ? true : false
         });
         console.log(`✅ Added factor: ${question.displayData.shortName} (+${score})`);
       } else {
@@ -119,8 +120,45 @@ const buildRiskBreakdown = (answers, quiz) => {
   console.log(`Final risk factors count: ${riskFactors.length}`);
   console.log('Risk factors:', riskFactors.map(f => `${f.name}: +${f.points}`));
 
-  // Sort by score (highest first) and return all non-zero factors
+  // Sort by score (highest first) and return only non-zero factors for Section 1
   return riskFactors.sort((a, b) => b.points - a.points);
+};
+
+/* -------- BUILD ALL MODIFIABLE FACTORS -------- */
+const buildAllModifiableFactors = (answers, quiz) => {
+  const modifiableFactors = [];
+  const maxTotalRiskScore = quiz.scoring.maxTotalPoints;
+
+  // Define modifiable question IDs
+  const MODIFIABLE_QUESTIONS = ['q3', 'q4', 'q6', 'q7', 'q8', 'q9', 'q12', 'q13', 'q14'];
+
+  MODIFIABLE_QUESTIONS.forEach(questionId => {
+    const question = quiz.questions.find((q) => q.id === questionId);
+    if (!question || !question.displayData) return;
+
+    // Find user's answer for this question
+    const userAnswer = answers.find((answer) => answer.qid === questionId);
+    const selectedOption = userAnswer ? question.options.find((opt) => opt.id === userAnswer.optionId) : null;
+    
+    const score = userAnswer ? userAnswer.categoryScore || 0 : 0;
+    const percentage = Math.round((score / maxTotalRiskScore) * 100);
+    const description = selectedOption ? selectedOption.text : 'Not specified';
+
+    modifiableFactors.push({
+      id: questionId,
+      icon: question.displayData.icon,
+      name: question.displayData.shortName,
+      points: score,
+      percentage,
+      description: description,
+      rationale: question.rationale,
+      simulatorConfig: question.displayData.simulatorConfig,
+      basePoints: selectedOption ? selectedOption.points : 0,
+      multiplier: question.multiplier
+    });
+  });
+
+  return modifiableFactors.sort((a, b) => b.points - a.points);
 };
 
 /* -------- GET DASHBOARD RISK DATA -------- */
@@ -162,6 +200,7 @@ const getDashboardRiskData = async (req, res) => {
     // profile + breakdown
     const { age, gender } = extractUserProfile(latestAttempt.answers, quiz);
     const riskBreakdown   = buildRiskBreakdown(latestAttempt.answers, quiz);
+    const modifiableFactors = buildAllModifiableFactors(latestAttempt.answers, quiz);
     const riskColors      = RISK_COLORS[latestAttempt.riskLevel] || RISK_COLORS.HIGH_RISK;
 
     const dashboardData = {
@@ -177,6 +216,7 @@ const getDashboardRiskData = async (req, res) => {
         percentage:  latestAttempt.percentageScore
       },
       riskBreakdown,
+      modifiableFactors,
       colors: {
         highRisk:     RISK_COLORS.HIGH_RISK,
         moderateRisk: RISK_COLORS.MODERATE_RISK,

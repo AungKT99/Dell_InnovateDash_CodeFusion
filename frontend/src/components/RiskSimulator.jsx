@@ -129,18 +129,18 @@ const RiskSimulator = () => {
         if (response.hasQuizData && response.data) {
           setDashboardData(response.data);
           
-          // Extract modifiable factors
-          const factors = response.data.riskBreakdown || [];
-          const modifiable = factors.filter(factor => 
-            MODIFIABLE_QUESTIONS.includes(factor.id)
-          );
+          // Use modifiable factors from backend
+          const modifiableFactors = response.data.modifiableFactors || [];
           
-          setModifiableFactors(modifiable.map(factor => ({
+          // Transform the data to include slider values
+          const transformedFactors = modifiableFactors.map(factor => ({
             ...factor,
-            currentValue: factor.points,
-            simulatedValue: factor.points,
-            sliderValue: factor.points
-          })));
+            currentValue: factor.basePoints,
+            simulatedValue: factor.basePoints,
+            sliderValue: factor.basePoints
+          }));
+          
+          setModifiableFactors(transformedFactors);
 
           // Set initial risk scores
           const initialRisk = response.data.riskScore?.percentage || 0;
@@ -158,6 +158,54 @@ const RiskSimulator = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper functions to get factor information
+  const getFactorIcon = (questionId) => {
+    const icons = {
+      'q3': '🚬', 'q4': '⚖️', 'q6': '🍺', 'q7': '🏃', 
+      'q8': '🥗', 'q9': '🍖', 'q12': '☀️', 'q13': '😴', 'q14': '😰'
+    };
+    return icons[questionId] || '📊';
+  };
+
+  const getFactorName = (questionId) => {
+    const names = {
+      'q3': 'Smoking', 'q4': 'BMI', 'q6': 'Alcohol', 'q7': 'Exercise',
+      'q8': 'Fruits/Veg', 'q9': 'Processed Meat', 'q12': 'Sun Protection',
+      'q13': 'Sleep', 'q14': 'Stress'
+    };
+    return names[questionId] || 'Unknown Factor';
+  };
+
+  const getDefaultDescription = (questionId) => {
+    const descriptions = {
+      'q3': 'Never smoked',
+      'q4': 'Normal (18.5-24.9)',
+      'q6': 'Never/Rarely',
+      'q7': '6+ days',
+      'q8': '5+ servings',
+      'q9': 'Rarely/Never',
+      'q12': 'Always',
+      'q13': 'Good (7-8 h)',
+      'q14': 'Low'
+    };
+    return descriptions[questionId] || 'Not specified';
+  };
+
+  const getFactorRationale = (questionId) => {
+    const rationales = {
+      'q3': 'Smoking is the top modifiable cancer risk.',
+      'q4': 'High BMI contributes to several cancers.',
+      'q6': 'Frequent drinking elevates several cancer risks.',
+      'q7': 'Inactivity raises cancer risk.',
+      'q8': 'Not enough fibre raises cancer risk.',
+      'q9': 'High intake boosts colorectal cancer risk.',
+      'q12': 'UV exposure is a major cause of skin cancer.',
+      'q13': 'Poor sleep affects immune function.',
+      'q14': 'Chronic stress promotes inflammation.'
+    };
+    return rationales[questionId] || 'This factor may affect your cancer risk.';
   };
 
   // Initial data fetch
@@ -197,7 +245,7 @@ const RiskSimulator = () => {
       
       modifiableFactors.forEach(factor => {
         const pointDifference = factor.simulatedValue - factor.currentValue;
-        const multiplier = QUESTION_CONFIGS[factor.id].multiplier;
+        const multiplier = factor.multiplier || 1;
         const weightedDifference = pointDifference * multiplier;
         totalPointDifference += weightedDifference;
       });
@@ -409,13 +457,13 @@ const RiskSimulator = () => {
                 {/* Slider */}
                 <div style={{ width: '200px', marginLeft: '1rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>
-                    <div style={{ textAlign: 'left' }}>{QUESTION_CONFIGS[factor.id].labels.left}</div>
-                    <div style={{ textAlign: 'right' }}>{QUESTION_CONFIGS[factor.id].labels.right}</div>
+                    <div style={{ textAlign: 'left' }}>{factor.simulatorConfig?.leftLabel || 'Low'}</div>
+                    <div style={{ textAlign: 'right' }}>{factor.simulatorConfig?.rightLabel || 'High'}</div>
                   </div>
                   <input
                     type="range"
-                    min={QUESTION_CONFIGS[factor.id].min}
-                    max={QUESTION_CONFIGS[factor.id].max}
+                    min="0"
+                    max="10"
                     value={factor.sliderValue}
                     onChange={(e) => handleSliderChange(factor.id, parseInt(e.target.value))}
                     className="risk-simulator-slider"
@@ -462,8 +510,8 @@ const RiskSimulator = () => {
           )}
           {modifiableFactors.length === 0 && (
             <div className="text-center py-4">
-              <p className="text-gray-500 mb-2">No modifiable risk factors found</p>
-              <p className="text-sm text-gray-400">All your current risk factors are non-modifiable</p>
+              <p className="text-gray-500 mb-2">Loading modifiable factors...</p>
+              <p className="text-sm text-gray-400">Please wait while we prepare your risk simulator</p>
             </div>
           )}
         </div>
