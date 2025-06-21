@@ -6,6 +6,7 @@ import Header from './Header';
 import { getDashboardRiskData } from '../api/dashboardApi';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
+import jsPDF from 'jspdf';
 
 const CancerRiskHelpers = {
   getRiskColors: (level, colors) => {
@@ -299,6 +300,153 @@ const RiskSimulator = () => {
     })));
   };
 
+  const handleSaveAsPdf = () => {
+    const doc = new jsPDF();
+    const marginLeft = 20;
+    let yPosition = 30;
+    const lineHeight = 8;
+
+    const findClosestOption = (factor, value) => {
+      if (!factor.options || factor.options.length === 0) return { text: "N/A", points: 0 };
+      return factor.options.reduce((prev, curr) =>
+        Math.abs(curr.points - value) < Math.abs(prev.points - value) ? curr : prev
+      );
+    };
+
+    const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    const generateMessageParts = (type, name, current, simulated) => {
+      const starts = {
+        improvement: [
+          `You've made a great improvement in your ${name.toLowerCase()} — going from `,
+          `You decided to improve your ${name.toLowerCase()} habit by moving from `,
+          `Well done on enhancing your ${name.toLowerCase()} from `
+        ],
+        decline: [
+          `Your change in ${name.toLowerCase()} from `,
+          `You shifted your ${name.toLowerCase()} from `,
+          `Your adjustment in ${name.toLowerCase()} from `
+        ],
+        neutral: [
+          `You chose to maintain your current habit for ${name.toLowerCase()} at `,
+          `Your ${name.toLowerCase()} remains at `,
+          `You're continuing with the same ${name.toLowerCase()} pattern of `
+        ]
+      };
+
+      const intro = pickRandom(starts[type]);
+      const commonEnd = type === "improvement"
+        ? ". That's a strong move for your long-term health."
+        : type === "decline"
+        ? ". This could raise your risk. Consider adjusting if possible."
+        : ". Staying consistent is a healthy choice.";
+
+      if (type === "neutral" || current === simulated) {
+        return [intro, { bold: true, text: simulated }, commonEnd];
+      } else {
+        return [intro, { bold: true, text: current }, " to ", { bold: true, text: simulated }, commonEnd];
+      }
+    };
+
+    const drawTextParts = (parts) => {
+      const maxWidth = 170;
+      let x = marginLeft;
+
+      const lines = [];
+      let line = [];
+      let lineWidth = 0;
+
+      const getTextWidth = (text, fontStyle) => {
+        doc.setFont("helvetica", fontStyle);
+        return doc.getTextWidth(text);
+      };
+
+      parts.forEach(part => {
+        const text = typeof part === "string" ? part : part.text;
+        const font = typeof part === "string" ? "normal" : (part.bold ? "bold" : "normal");
+        const words = text.split(/(\s+)/);
+
+        words.forEach(word => {
+          const width = getTextWidth(word, font);
+          if (lineWidth + width > maxWidth) {
+            lines.push(line);
+            line = [];
+            lineWidth = 0;
+          }
+          line.push({ text: word, font });
+          lineWidth += width;
+        });
+      });
+
+      if (line.length > 0) lines.push(line);
+
+      lines.forEach(line => {
+        if (yPosition > 275) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        x = marginLeft;
+        line.forEach(segment => {
+          doc.setFont("helvetica", segment.font);
+          doc.text(segment.text, x, yPosition);
+          x += doc.getTextWidth(segment.text);
+        });
+        yPosition += lineHeight;
+      });
+
+      yPosition += 3;
+    };
+
+    const addSectionBreak = () => {
+      yPosition += 3;
+      doc.setDrawColor(230);
+      doc.setLineWidth(0.2);
+      doc.line(marginLeft, yPosition, 190, yPosition);
+      yPosition += 6;
+    };
+
+    // --- Header ---
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Your Personalized Lifestyle Plan", 105, 20, null, null, "center");
+
+    const riskReduction = currentRiskScore - simulatedRiskScore;
+    let tone = simulatedRiskScore <= 25
+      ? "celebratory_low"
+      : simulatedRiskScore <= 50
+      ? "balanced_moderate"
+      : riskReduction >= 15
+      ? "motivated_improver"
+      : "caution_high";
+
+    const headerTextMap = {
+      celebratory_low: `Amazing work! Your lifestyle choices have brought your estimated cancer risk to just ${simulatedRiskScore}%. This personalized plan celebrates your progress and helps you continue on a healthy path.`,
+      balanced_moderate: `You're on the right track! Your estimated risk is now ${simulatedRiskScore}%. This plan supports your next steps to reduce it even further.`,
+      motivated_improver: `Great progress! You've reduced your risk by ${riskReduction}%. Even though there's more to work on, this plan recognizes your commitment and guides you further.`,
+      caution_high: `Your estimated risk is ${simulatedRiskScore}%. This plan outlines meaningful changes you can make to lower that number and take charge of your health.`
+    };
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    drawTextParts([headerTextMap[tone]]);
+    addSectionBreak();
+
+    // --- Factors ---
+    modifiableFactors.forEach(factor => {
+      const current = findClosestOption(factor, factor.currentValue);
+      const simulated = findClosestOption(factor, factor.simulatedValue);
+
+      let changeType = "neutral";
+      if (simulated.points < current.points) changeType = "improvement";
+      else if (simulated.points > current.points) changeType = "decline";
+
+      const messageParts = generateMessageParts(changeType, factor.name, current.text, simulated.text);
+      drawTextParts(messageParts);
+    });
+
+    doc.save(`lifestyle_plan_for_${simulatedRiskScore}_risk.pdf`);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -532,13 +680,13 @@ const RiskSimulator = () => {
 
         {/* Action Buttons */}
         <div className="risk-actions">
-          <button className="risk-btn primary">
+          <button className="risk-btn primary" onClick={handleSaveAsPdf}>
             <span>Save as PDF</span>
             <ChevronRight className="btn-icon" />
           </button>
           
           <button className="risk-btn secondary">
-            <span>Book Screening</span>
+            <span>Share Results</span>
             <ChevronRight className="btn-icon" />
           </button>
         </div>

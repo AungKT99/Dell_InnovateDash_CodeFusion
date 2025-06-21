@@ -154,7 +154,8 @@ const buildAllModifiableFactors = (answers, quiz) => {
       rationale: question.rationale,
       simulatorConfig: question.displayData.simulatorConfig,
       basePoints: selectedOption ? selectedOption.points : 0,
-      multiplier: question.multiplier
+      multiplier: question.multiplier,
+      options: question.options
     });
   });
 
