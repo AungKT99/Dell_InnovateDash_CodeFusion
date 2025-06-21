@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, ClipboardCheck} from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, ClipboardCheck, ShieldCheck} from 'lucide-react';
 import Header from './Header';
 import { getDashboardRiskData } from '../api/dashboardApi';
 import { getScreeningChecklist, getAllAvailableScreenings } from '../api/screeningApi'; 
@@ -156,10 +156,10 @@ const CancerRiskAssessment = () => {
     return (
       <div className="cancer-risk-card">
         <div className="risk-content" style={{ padding: '3rem', textAlign: 'center' }}>
-          <Target className="mx-auto mb-4 text-blue-500" size={48} />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Complete Your Assessment</h3>
+          <ShieldCheck className="mx-auto mb-4 text-orange-500" size={48} />
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Know Your Risk, Take Control</h3>
           <p className="text-gray-600 mb-4">
-            {dashboardData?.uiText?.urgencyMessage || 'Complete your lifestyle assessment to see your personalized risk data'}
+            {dashboardData?.uiText?.urgencyMessage || 'Take our 3-minute lifestyle assessment to see your cancer risk breakdown and learn how to lower it.'}
           </p>
           <button 
             onClick={() => navigate('/lifestyle_quiz')}
@@ -457,16 +457,6 @@ const ScreeningOverview = () => {
             <AlertTriangle className="w-8 h-8 text-orange-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Take Assessment First</h3>
-          <p className="text-gray-600 mb-6">
-            Complete your cancer risk assessment to get personalized screening recommendations.
-          </p>
-          <Link 
-            to="/lifestyle-quiz"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <ClipboardList className="w-4 h-4" />
-            Start Assessment
-          </Link>
         </div>
       </div>
     );
