@@ -2,6 +2,7 @@
 
 const LifestyleQuizAttempt = require('../models/LifeStyleQuizAttempt');
 const LifestyleQuiz = require('../models/LifeStyleQuiz');
+const ProviderTestPackage = require('../models/ProviderTestPackage');
 const ScreeningTest = require('../models/ScreeningTest');
 const { 
   generateScreeningRecommendations, 
@@ -395,10 +396,81 @@ const refreshPackages = async (req, res) => {
   }
 };
 
+// Add this new function to your screeningRecommendationsController.js
+
+/**
+ * Get all available screening tests from database (not personalized)
+ */
+const getAllAvailableScreenings = async (req, res) => {
+  try {
+    // Get all active screening tests from database
+    const allTests = await ScreeningTest.find({ isActive: true });
+    
+    // For each test, get available packages
+    const screeningTestsWithPackages = await Promise.all(
+      allTests.map(async (test) => {
+        // Get packages for this test
+        const packages = await ProviderTestPackage.find({ 
+          testId: test._id, 
+          isActive: true 
+        })
+        .populate('providerId', 'name code website contactInfo')
+        .sort({ priority: -1 });
+
+        // Format the data similar to personalized recommendations
+        return {
+          testName: test.name,
+          priority: 'Medium', // Default priority for non-personalized
+          whyText: test.description || `General screening for ${test.name.toLowerCase()}`,
+          providers: packages.map(pkg => ({
+            code: pkg.providerId.code,
+            name: pkg.providerId.name,
+            url: pkg.packageUrl
+          })),
+          recommendedPackage: packages.length > 0 ? {
+            provider: {
+              name: packages[0].providerId.name,
+              code: packages[0].providerId.code
+            },
+            packageUrl: packages[0].packageUrl
+          } : null,
+          allPackages: packages.map(pkg => ({
+            provider: {
+              code: pkg.providerId.code,
+              name: pkg.providerId.name
+            },
+            package: {
+              name: pkg.packageName,
+              url: pkg.packageUrl
+            }
+          }))
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        screeningTests: screeningTestsWithPackages
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching all available screenings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching all available screenings'
+    });
+  }
+};
+
+// Update your module.exports to include the new function
 module.exports = {
   getScreeningRecommendations,
   getScreeningChecklist,
   getTestInfo,
   getTestProviders,
-  refreshPackages
+  refreshPackages,
+  getAllAvailableScreenings  // Add this line
 };
+

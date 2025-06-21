@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, Calendar, MapPin } from 'lucide-react';
 import Header from './Header';
 import { getDashboardRiskData } from '../api/dashboardApi';
-import { getScreeningChecklist } from '../api/screeningApi';
+import { getScreeningChecklist, getAllAvailableScreenings } from '../api/screeningApi'; 
 import '../styles/styles.css';
 import '../styles/dashboard.css';
 
@@ -394,33 +394,63 @@ const RiskSimulator = () => {
 };
 
 // NEW: Screening Overview component for dashboard
+// Updated ScreeningOverview component for Dashboard.jsx
 const ScreeningOverview = () => {
   const [screeningData, setScreeningData] = useState(null);
+  const [allAvailableScreenings, setAllAvailableScreenings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAllScreenings, setShowAllScreenings] = useState(false);
+  const [loadingAllScreenings, setLoadingAllScreenings] = useState(false);
 
   const fetchScreeningData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getScreeningChecklist();
-      
-      if (response.success) {
-        setScreeningData(response.data);
-      } else {
-        // Don't show error for missing screening data if user has completed assessment
-        // Instead show that we're generating recommendations
+      try {
+        setLoading(true);
         setError(null);
-        setScreeningData({ screeningItems: [], userInfo: null });
+        const response = await getScreeningChecklist();
+        
+        if (response.success) {
+          setScreeningData(response.data);
+        } else {
+          setError(response.message || 'Unable to fetch screening data');
+        }
+      } catch (err) {
+        console.error('Error fetching screening data:', err);
+        if (err.status === 404) {
+          setError('quiz_required'); // Special flag for no quiz taken
+        } else {
+          setError('Unable to fetch screening recommendations');
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching screening data:', err);
-      // Handle network errors gracefully
-      setError(null);
-      setScreeningData({ screeningItems: [], userInfo: null });
-    } finally {
-      setLoading(false);
+    };
+
+  const fetchAllAvailableScreenings = async () => {
+  try {
+    setLoadingAllScreenings(true);
+    
+    // Make real API call to get all available screening tests from database
+    const response = await getAllAvailableScreenings();
+    
+    if (response.success) {
+      setAllAvailableScreenings(response.data.screeningTests || []);
+    } else {
+      console.error('Failed to fetch all available screenings:', response.message);
+      setAllAvailableScreenings([]);
     }
+  } catch (err) {
+    console.error('Error fetching all available screenings:', err);
+    setAllAvailableScreenings([]);
+  } finally {
+    setLoadingAllScreenings(false);
+  }
+};
+  const handleShowAllScreenings = async () => {
+    if (!showAllScreenings && !allAvailableScreenings) {
+      await fetchAllAvailableScreenings();
+    }
+    setShowAllScreenings(!showAllScreenings);
   };
 
   useEffect(() => {
@@ -436,7 +466,61 @@ const ScreeningOverview = () => {
         </div>
         <div className="flex items-center justify-center h-32">
           <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="ml-2 text-gray-600">Generating your personalized recommendations...</span>
+          <span className="ml-2 text-gray-600">Loading recommendations...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show "take assessment first" message
+  if (error === 'quiz_required') {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
+          <ClipboardList className="w-6 h-6 text-blue-600" />
+        </div>
+        
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-orange-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Take Assessment First</h3>
+          <p className="text-gray-600 mb-6">
+            Complete your cancer risk assessment to get personalized screening recommendations.
+          </p>
+          <Link 
+            to="/lifestyle-quiz"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <ClipboardList className="w-4 h-4" />
+            Start Assessment
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message for other errors
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
+          <ClipboardList className="w-6 h-6 text-blue-600" />
+        </div>
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchScreeningData}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -444,117 +528,146 @@ const ScreeningOverview = () => {
 
   const { screeningItems, userInfo } = screeningData || {};
   
-  // Count priorities
-  const urgentCount = screeningItems?.filter(item => 
-    item.priority?.toLowerCase() === 'high' || item.priority?.toLowerCase() === 'urgent'
-  ).length || 0;
-  
-  const recommendedCount = screeningItems?.filter(item => 
-    item.priority?.toLowerCase() === 'medium' || item.priority?.toLowerCase() === 'needed'
-  ).length || 0;
+  // Get priority order for display
+  const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1, 'Urgent': 4, 'Needed': 2 };
+  const sortedRecommendedItems = screeningItems?.sort((a, b) => 
+    (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
+  ) || [];
+
+  // Combine recommended + additional screenings when showing all
+  const displayItems = showAllScreenings 
+    ? [...sortedRecommendedItems, ...(allAvailableScreenings || [])]
+    : sortedRecommendedItems;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
-        <ClipboardList className="w-6 h-6 text-blue-600" />
-      </div>
-      
-      <p className="text-gray-600 mb-4">
-        Personalized screening recommendations based on your risk assessment.
-      </p>
-
-      {/* If no screening data yet, show generating recommendations */}
-      {(!screeningItems || screeningItems.length === 0) && (
-        <div className="text-center py-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ClipboardList className="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Your Recommendations</h3>
-          <p className="text-gray-600 mb-4">
-            Our system is analyzing your risk profile to create personalized screening recommendations.
-          </p>
-          
-          <div className="space-y-2 mb-6">
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <span className="text-sm font-medium text-blue-900">Cancer Risk Analysis</span>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">✓ Complete</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-              <span className="text-sm font-medium text-yellow-900">Provider Matching</span>
-              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">⏳ Processing</span>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      <div className="space-y-3">
-        {urgentCount > 0 && (
-          <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-              <span className="text-sm font-medium text-red-900">Urgent Screenings</span>
-            </div>
-            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-              {urgentCount} pending
-            </span>
-          </div>
-        )}
-        
-        {recommendedCount > 0 && (
-          <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm font-medium text-yellow-900">Recommended</span>
-            </div>
-            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-              {recommendedCount} pending
-            </span>
-          </div>
-        )}
+    <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-y-auto">
+      {/* Header - REMOVED user info line */}
+      <div className="text-center border-b border-gray-200 pb-4 mb-6">
+        <h2 className="text-xl font-bold text-gray-800">YOUR SCREENING CHECKLIST</h2>
       </div>
 
-      {/* Quick preview of first screening item */}
-      {screeningItems && screeningItems.length > 0 && (
-        <div className="mt-4 p-3 border border-gray-200 rounded-lg">
-          <div className="flex items-start justify-between">
-            <div>
-              <h4 className="font-medium text-gray-900">{screeningItems[0].testName}</h4>
-              <p className="text-sm text-gray-600">{screeningItems[0].whyText}</p>
-              {screeningItems[0].recommendedPackage && (
-                <p className="text-xs text-blue-600 mt-1">
-                  {screeningItems[0].recommendedPackage.provider.name}
-                </p>
-              )}
-            </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              screeningItems[0].priority?.toLowerCase() === 'high' || screeningItems[0].priority?.toLowerCase() === 'urgent'
-                ? 'bg-red-100 text-red-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}>
-              {screeningItems[0].priority?.toUpperCase() || 'NEEDED'}
-            </span>
-          </div>
+      {/* Screening Items */}
+      <div className="space-y-4">
+        {displayItems.map((item, index) => (
+          <ScreeningCard 
+            key={`${item.testName}-${index}`} 
+            item={item} 
+            isRecommended={index < sortedRecommendedItems.length}
+          />
+        ))}
+      </div>
+
+      {/* Loading additional screenings */}
+      {loadingAllScreenings && (
+        <div className="mt-4 text-center">
+          <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+          <span className="text-sm text-gray-600">Loading additional screenings...</span>
         </div>
       )}
-      
-      <div className="mt-6 space-y-2">
-        <Link 
-          to="/screening-checklist"
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <ClipboardList className="w-4 h-4" />
-          {screeningItems && screeningItems.length > 0 ? 'View Full Checklist' : 'View Recommendations'}
-        </Link>
-        
-        <button 
-          onClick={fetchScreeningData}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Refresh Recommendations
-        </button>
+
+      {/* Show More Button - Show all screening tests toggle */}
+      {sortedRecommendedItems.length > 0 && (
+        <div className="mt-6 text-center">
+          <button 
+            onClick={handleShowAllScreenings}
+            disabled={loadingAllScreenings}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            {showAllScreenings 
+              ? 'Show Recommended Only' 
+              : 'Display All Available Screenings'
+            }
+          </button>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="mt-8 pt-4 border-t border-gray-200 text-center">
+        <div className="text-sm text-gray-600">Contact Info to SCS</div>
       </div>
+    </div>
+  );
+};
+
+// Updated Individual Screening Card Component
+const ScreeningCard = ({ item, isRecommended }) => {
+  const getPriorityIcon = (priority) => {
+    switch (priority?.toLowerCase()) {
+      case 'urgent':
+      case 'high':
+        return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+      case 'needed':
+      case 'medium':
+        return <Activity className="w-4 h-4 text-yellow-500" />;
+      default:
+        return <ClipboardList className="w-4 h-4 text-blue-500" />;
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    // Only apply colored backgrounds for recommended tests
+    if (!isRecommended) {
+      return 'border-gray-200 bg-white'; // Plain white for non-recommended
+    }
+    
+    switch (priority?.toLowerCase()) {
+      case 'urgent':
+      case 'high':
+        return 'border-orange-200 bg-orange-50';
+      case 'needed':
+      case 'medium':
+        return 'border-yellow-200 bg-yellow-50';
+      default:
+        return 'border-blue-200 bg-blue-50';
+    }
+  };
+
+  return (
+    <div className={`border rounded-lg p-4 ${getPriorityColor(item.priority)}`}>
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        {getPriorityIcon(item.priority)}
+        <h3 className="font-semibold text-gray-900">
+          {item.testName?.toUpperCase()}
+          {isRecommended && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">RECOMMENDED</span>}
+        </h3>
+      </div>
+      
+      {/* Priority line */}
+      <div className="mb-3 text-sm text-gray-700">
+        Priority: {item.priority}
+      </div>
+
+      {/* Why Section */}
+      <div className="mb-3">
+        <span className="text-sm font-medium text-gray-700">Why: </span>
+        <span className="text-sm text-gray-600">{item.whyText}</span>
+      </div>
+
+      {/* Provider buttons */}
+      <div className="flex flex-wrap gap-2 mb-2">
+        {item.providers?.slice(0, 3).map((provider, idx) => (
+          <button
+            key={idx}
+            className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+            onClick={() => window.open(provider.url, '_blank')}
+          >
+            [{provider.code}]
+          </button>
+        ))}
+        {item.providers?.length > 3 && (
+          <button className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 transition-colors">
+            [+{item.providers.length - 3} more]
+          </button>
+        )}
+      </div>
+
+      {/* Recommended Provider */}
+      {item.recommendedPackage && (
+        <div className="text-xs text-gray-500">
+          Recommended: {item.recommendedPackage.provider.name}
+        </div>
+      )}
     </div>
   );
 };
