@@ -1,9 +1,11 @@
+// frontend/src/components/Dashboard.jsx - Complete version with Screening Card
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // ADD THIS LINE
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronRight, Activity, Target, Loader2, RefreshCw, ClipboardList, Calendar, MapPin } from 'lucide-react';
 import Header from './Header';
 import { getDashboardRiskData } from '../api/dashboardApi';
+import { getScreeningChecklist } from '../api/screeningApi';
 import '../styles/styles.css';
 import '../styles/dashboard.css';
 
@@ -46,9 +48,9 @@ const CancerRiskHelpers = {
 };
 
 const CancerRiskAssessment = () => {
-   const navigate = useNavigate(); // to navigate
+  const navigate = useNavigate();
 
-  //Data from backend
+  // Data from backend
   const [riskScore, setRiskScore] = useState(0);
   const [progressWidth, setProgressWidth] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -162,10 +164,10 @@ const CancerRiskAssessment = () => {
           <button 
             onClick={() => navigate('/lifestyle_quiz')}
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-            >
+          >
             Start Lifestyle Quiz
             <ChevronRight size={16} className="ml-2" />
-        </button>
+          </button>
         </div>
       </div>
     );
@@ -244,10 +246,9 @@ const CancerRiskAssessment = () => {
           <div 
             className="risk-factors-scroll-container" 
             style={{
-              maxHeight: '240px', // Space for ~3 factors
+              maxHeight: '240px',
               overflowY: 'auto',
               paddingRight: '8px',
-             
             }}
           >
             {riskFactors.map((factor, index) => (
@@ -295,7 +296,7 @@ const CancerRiskAssessment = () => {
                 gap: '4px',
                 position: 'relative',
                 zIndex: 1,
-                pointerEvents: 'none' // Prevent interference with button clicks
+                pointerEvents: 'none'
               }}
             >
               <ChevronRight 
@@ -325,11 +326,14 @@ const CancerRiskAssessment = () => {
             <ChevronRight className="btn-icon" />
           </button>
           
-          {/* Secondary CTA - Book Screening */}
-          <button className="risk-btn secondary">
-            <span>{uiText.secondaryButton || 'Book Screening'}</span>
+          {/* Secondary CTA - View Screening Recommendations */}
+          <Link 
+            to="/screening-checklist"
+            className="risk-btn secondary"
+          >
+            <span>{uiText.secondaryButton || 'View Screening Recommendations'}</span>
             <ChevronRight className="btn-icon" />
-          </button>
+          </Link>
         </div>
         
         {/* Urgency message */}
@@ -344,14 +348,240 @@ const CancerRiskAssessment = () => {
   );
 };
 
+// NEW: Risk Simulator component for dashboard
+const RiskSimulator = () => {
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900">Risk Simulator</h2>
+        <Target className="w-6 h-6 text-blue-600" />
+      </div>
+      
+      <p className="text-gray-600 mb-6">
+        Explore how lifestyle changes could impact your cancer risk over time.
+      </p>
+      
+      <div className="space-y-4">
+        <div className="p-4 border border-gray-200 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-2">🥗 Diet Improvements</h3>
+          <p className="text-sm text-gray-600">See how increasing fruits & vegetables affects your risk</p>
+        </div>
+        
+        <div className="p-4 border border-gray-200 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-2">🏃‍♀️ Exercise More</h3>
+          <p className="text-sm text-gray-600">Calculate risk reduction from regular physical activity</p>
+        </div>
+        
+        <div className="p-4 border border-gray-200 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-2">🚭 Lifestyle Changes</h3>
+          <p className="text-sm text-gray-600">Model impact of quitting smoking & reducing alcohol</p>
+        </div>
+      </div>
+      
+      <div className="mt-6">
+        <button className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all font-semibold">
+          Launch Risk Simulator
+        </button>
+      </div>
+      
+      <div className="mt-4 p-3 bg-pink-50 rounded-lg">
+        <p className="text-sm text-pink-800">
+          💡 Interactive tool to see potential risk improvements
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// NEW: Screening Overview component for dashboard
+const ScreeningOverview = () => {
+  const [screeningData, setScreeningData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchScreeningData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getScreeningChecklist();
+      
+      if (response.success) {
+        setScreeningData(response.data);
+      } else {
+        // Don't show error for missing screening data if user has completed assessment
+        // Instead show that we're generating recommendations
+        setError(null);
+        setScreeningData({ screeningItems: [], userInfo: null });
+      }
+    } catch (err) {
+      console.error('Error fetching screening data:', err);
+      // Handle network errors gracefully
+      setError(null);
+      setScreeningData({ screeningItems: [], userInfo: null });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchScreeningData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
+          <ClipboardList className="w-6 h-6 text-blue-600" />
+        </div>
+        <div className="flex items-center justify-center h-32">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Generating your personalized recommendations...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const { screeningItems, userInfo } = screeningData || {};
+  
+  // Count priorities
+  const urgentCount = screeningItems?.filter(item => 
+    item.priority?.toLowerCase() === 'high' || item.priority?.toLowerCase() === 'urgent'
+  ).length || 0;
+  
+  const recommendedCount = screeningItems?.filter(item => 
+    item.priority?.toLowerCase() === 'medium' || item.priority?.toLowerCase() === 'needed'
+  ).length || 0;
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
+        <ClipboardList className="w-6 h-6 text-blue-600" />
+      </div>
+      
+      <p className="text-gray-600 mb-4">
+        Personalized screening recommendations based on your risk assessment.
+      </p>
+
+      {/* If no screening data yet, show generating recommendations */}
+      {(!screeningItems || screeningItems.length === 0) && (
+        <div className="text-center py-6">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ClipboardList className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Your Recommendations</h3>
+          <p className="text-gray-600 mb-4">
+            Our system is analyzing your risk profile to create personalized screening recommendations.
+          </p>
+          
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <span className="text-sm font-medium text-blue-900">Cancer Risk Analysis</span>
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">✓ Complete</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+              <span className="text-sm font-medium text-yellow-900">Provider Matching</span>
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">⏳ Processing</span>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="space-y-3">
+        {urgentCount > 0 && (
+          <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <span className="text-sm font-medium text-red-900">Urgent Screenings</span>
+            </div>
+            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+              {urgentCount} pending
+            </span>
+          </div>
+        )}
+        
+        {recommendedCount > 0 && (
+          <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm font-medium text-yellow-900">Recommended</span>
+            </div>
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+              {recommendedCount} pending
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Quick preview of first screening item */}
+      {screeningItems && screeningItems.length > 0 && (
+        <div className="mt-4 p-3 border border-gray-200 rounded-lg">
+          <div className="flex items-start justify-between">
+            <div>
+              <h4 className="font-medium text-gray-900">{screeningItems[0].testName}</h4>
+              <p className="text-sm text-gray-600">{screeningItems[0].whyText}</p>
+              {screeningItems[0].recommendedPackage && (
+                <p className="text-xs text-blue-600 mt-1">
+                  {screeningItems[0].recommendedPackage.provider.name}
+                </p>
+              )}
+            </div>
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              screeningItems[0].priority?.toLowerCase() === 'high' || screeningItems[0].priority?.toLowerCase() === 'urgent'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {screeningItems[0].priority?.toUpperCase() || 'NEEDED'}
+            </span>
+          </div>
+        </div>
+      )}
+      
+      <div className="mt-6 space-y-2">
+        <Link 
+          to="/screening-checklist"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <ClipboardList className="w-4 h-4" />
+          {screeningItems && screeningItems.length > 0 ? 'View Full Checklist' : 'View Recommendations'}
+        </Link>
+        
+        <button 
+          onClick={fetchScreeningData}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh Recommendations
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, name: 'Risk Assessment', icon: AlertTriangle, component: <CancerRiskAssessment /> },
-    { id: 1, name: 'Section 2', icon: Activity, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2><p className="text-gray-600">Content for second section will go here</p></div> },
-    { id: 2, name: 'Section 3', icon: Target, component: <div className="bg-white rounded-xl shadow-lg p-6 h-full"><h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2><p className="text-gray-600">Content for third section will go here</p></div> }
+    { 
+      id: 0, 
+      name: 'Risk Assessment', 
+      icon: AlertTriangle, 
+      component: <CancerRiskAssessment /> 
+    },
+    { 
+      id: 1, 
+      name: 'Risk Simulator', 
+      icon: Target, 
+      component: <RiskSimulator /> 
+    },
+    { 
+      id: 2, 
+      name: 'Screening Recommendations', 
+      icon: ClipboardList, 
+      component: <ScreeningOverview /> 
+    }
   ];
 
   return (
@@ -384,13 +614,11 @@ const Dashboard = () => {
             <div className="h-full">
               <CancerRiskAssessment />
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 2</h2>
-              <p className="text-gray-600">Content for second section will go here</p>
+            <div className="h-full">
+              <RiskSimulator />
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Section 3</h2>
-              <p className="text-gray-600">Content for third section will go here</p>
+            <div className="h-full">
+              <ScreeningOverview />
             </div>
           </div>
 
