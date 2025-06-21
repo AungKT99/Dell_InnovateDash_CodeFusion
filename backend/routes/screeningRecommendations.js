@@ -1,5 +1,7 @@
 
-
+const express = require('express');
+const auth = require('../middleware/auth');
+const router = express.Router();
 // Add this import to your existing screeningRecommendations.js route file
 const {
   getScreeningRecommendations,
@@ -9,7 +11,7 @@ const {
   refreshPackages,
   getAllAvailableScreenings  // Add this line
 } = require('../controllers/screeningRecommendationsController');
-const auth = require('../middleware/auth');
+
 
 // All routes require authentication
 router.use(auth);

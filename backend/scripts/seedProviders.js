@@ -175,12 +175,12 @@ const screeningTests = [
 ];
 
 const providerTestPackages = [
-  // NCCS Packages
+  // NCCS Packages - CORRECTED URLS
   {
     providerCode: 'NCCS',
     testCode: 'COLONOSCOPY',
     packageName: 'Comprehensive Colonoscopy Screening',
-    packageUrl: 'https://www.nccs.com.sg/patient-care/screening-programmes/colorectal-cancer-screening',
+    packageUrl: 'https://www.nccs.com.sg/patient-care/conditions-treatments/colonoscopy', // CORRECTED
     price: {
       amount: 800,
       currency: 'SGD',
@@ -210,7 +210,7 @@ const providerTestPackages = [
     providerCode: 'NCCS',
     testCode: 'MAMMOGRAM',
     packageName: 'Digital Mammography Screening',
-    packageUrl: 'https://www.nccs.com.sg/patient-care/screening-programmes/breast-cancer-screening',
+    packageUrl: 'https://www.nccs.com.sg/patient-care/cancer-types/pages/cancer-screening.aspx', // CORRECTED
     price: {
       amount: 200,
       currency: 'SGD',
@@ -237,54 +237,84 @@ const providerTestPackages = [
     }
   },
   
-  // Singapore Cancer Society Packages
+  // Singapore Cancer Society Packages - CORRECTED URLS & SERVICES
   {
     providerCode: 'SCS',
-    testCode: 'COLONOSCOPY',
-    packageName: 'Community Colonoscopy Programme',
-    packageUrl: 'https://www.singaporecancersociety.org.sg/programmes-services/screening-programmes.html',
+    testCode: 'FIT_TEST', // CHANGED: SCS focuses on FIT, not colonoscopy
+    packageName: 'FIT Kit Programme',
+    packageUrl: 'https://www.singaporecancersociety.org.sg/get-screened/colorectal-cancer/fit-kit.html', // CORRECTED
     price: {
-      amount: 600,
+      amount: 0, // FREE for eligible citizens
       currency: 'SGD',
       subsidized: {
-        amount: 300,
-        eligibility: 'Income-based subsidies available'
+        amount: 0,
+        eligibility: 'Singapore Citizens and PRs aged 50-75'
       }
     },
     availability: {
-      locations: ['SCS Medical Centre', 'Partner Clinics'],
+      locations: ['Home collection kit', 'SCS Medical Centre'],
       onlineBooking: true,
       walkIn: false
     },
     specializations: {
-      highRisk: true,
-      familyHistory: true,
+      highRisk: false,
+      familyHistory: false,
       fastTrack: false
     },
     priority: 3,
     additionalInfo: {
-      waitTime: '3-4 weeks',
-      requirements: ['Health screening questionnaire', 'Pre-procedure counseling'],
-      includes: ['Pre-screening consultation', 'Procedure', 'Basic pathology', 'Post-procedure care']
+      waitTime: 'Kit delivered within 1 week',
+      requirements: ['No bleeding conditions', 'Age 50-75 years'],
+      includes: ['2 FIT kits', 'Instructions', 'Business reply envelope', 'Results by post']
     }
   },
-  
-  // HealthHub Packages
   {
-    providerCode: 'HEALTHHUB',
+    providerCode: 'SCS',
     testCode: 'MAMMOGRAM',
-    packageName: 'HealthHub Mammography Screening',
-    packageUrl: 'https://www.healthhub.sg/programmes/61/breast_cancer_screening',
+    packageName: 'Mammogram Screening Programme',
+    packageUrl: 'https://www.singaporecancersociety.org.sg/get-screened/breast-cancer/mammogram.html', // CORRECTED
     price: {
-      amount: 150,
+      amount: 120,
       currency: 'SGD',
       subsidized: {
-        amount: 75,
-        eligibility: 'Pioneer Generation and Merdeka Generation'
+        amount: 80,
+        eligibility: 'Income-based subsidies available'
       }
     },
     availability: {
-      locations: ['Multiple HealthHub locations', 'Mobile screening units'],
+      locations: ['SCS Clinic @ Bishan', 'Community Mammobus'],
+      onlineBooking: true,
+      walkIn: false
+    },
+    specializations: {
+      highRisk: false,
+      familyHistory: false,
+      fastTrack: false
+    },
+    priority: 3,
+    additionalInfo: {
+      waitTime: '2-3 weeks',
+      requirements: ['Age 40 and above', 'No pregnancy'],
+      includes: ['Digital mammography', 'Results notification', 'Follow-up consultation if needed']
+    }
+  },
+  
+  // HealthHub Packages - CORRECTED URLS (renamed to Healthier SG Screening)
+  {
+    providerCode: 'HEALTHHUB',
+    testCode: 'FIT_TEST',
+    packageName: 'Healthier SG Colorectal Screening',
+    packageUrl: 'https://www.healthhub.sg/programmes/healthiersg-screening', // CORRECTED
+    price: {
+      amount: 0, // FREE for eligible HSG enrollees
+      currency: 'SGD',
+      subsidized: {
+        amount: 0,
+        eligibility: 'Healthier SG enrolled citizens'
+      }
+    },
+    availability: {
+      locations: ['Enrolled Healthier SG clinics', 'CHAS GP clinics'],
       onlineBooking: true,
       walkIn: true
     },
@@ -295,24 +325,84 @@ const providerTestPackages = [
     },
     priority: 2,
     additionalInfo: {
+      waitTime: 'Same day if available',
+      requirements: ['Healthier SG enrollment preferred', 'Age-based eligibility'],
+      includes: ['FIT test', 'Follow-up consultation if needed']
+    }
+  },
+  {
+    providerCode: 'HEALTHHUB',
+    testCode: 'MAMMOGRAM',
+    packageName: 'Healthier SG Breast Screening',
+    packageUrl: 'https://www.healthhub.sg/programmes/healthiersg-screening', // CORRECTED
+    price: {
+      amount: 50,
+      currency: 'SGD',
+      subsidized: {
+        amount: 0, // FREE for HSG enrollees
+        eligibility: 'Healthier SG enrolled citizens get free screening'
+      }
+    },
+    availability: {
+      locations: ['Selected polyclinics only'],
+      onlineBooking: true,
+      walkIn: false
+    },
+    specializations: {
+      highRisk: false,
+      familyHistory: false,
+      fastTrack: false
+    },
+    priority: 2,
+    additionalInfo: {
       waitTime: '1-2 weeks',
-      requirements: ['Online registration', 'Bring NRIC'],
+      requirements: ['Age 50+ (2 yearly) or 40-49 (yearly)', 'Available at selected polyclinics only'],
       includes: ['Digital mammography', 'Results notification', 'Referral if needed']
     }
   },
   
-  // Polyclinic Packages
+  // Polyclinic Packages - CORRECTED URLS & SERVICES
+  {
+    providerCode: 'POLYCLINIC',
+    testCode: 'FIT_TEST',
+    packageName: 'Polyclinic Colorectal Screening',
+    packageUrl: 'https://www.healthhub.sg/programmes/healthiersg-screening', // CORRECTED: Goes through Healthier SG
+    price: {
+      amount: 5,
+      currency: 'SGD',
+      subsidized: {
+        amount: 0,
+        eligibility: 'Citizens and PRs under Healthier SG'
+      }
+    },
+    availability: {
+      locations: ['All Polyclinic branches'],
+      onlineBooking: true,
+      walkIn: true
+    },
+    specializations: {
+      highRisk: false,
+      familyHistory: false,
+      fastTrack: false
+    },
+    priority: 1,
+    additionalInfo: {
+      waitTime: 'Same day collection',
+      requirements: ['Make appointment through HealthHub app or hotline'],
+      includes: ['FIT kit and instructions', 'Lab analysis', 'Results notification']
+    }
+  },
   {
     providerCode: 'POLYCLINIC',
     testCode: 'PAP_SMEAR',
     packageName: 'Cervical Cancer Screening',
-    packageUrl: 'https://www.polyclinic.sg/health-screening',
+    packageUrl: 'https://www.healthhub.sg/programmes/healthiersg-screening', // CORRECTED
     price: {
-      amount: 30,
+      amount: 5,
       currency: 'SGD',
       subsidized: {
-        amount: 15,
-        eligibility: 'Citizens and PRs'
+        amount: 0,
+        eligibility: 'Citizens and PRs under Healthier SG'
       }
     },
     availability: {
@@ -336,13 +426,13 @@ const providerTestPackages = [
     providerCode: 'POLYCLINIC',
     testCode: 'HPV_TEST',
     packageName: 'HPV Screening Test',
-    packageUrl: 'https://www.polyclinic.sg/health-screening',
+    packageUrl: 'https://www.healthhub.sg/programmes/healthiersg-screening', // CORRECTED
     price: {
-      amount: 50,
+      amount: 5,
       currency: 'SGD',
       subsidized: {
-        amount: 25,
-        eligibility: 'Citizens and PRs'
+        amount: 0,
+        eligibility: 'Citizens and PRs under Healthier SG'
       }
     },
     availability: {
@@ -362,53 +452,23 @@ const providerTestPackages = [
       includes: ['HPV test', 'Results notification', 'Follow-up consultation if positive']
     }
   },
-  {
-    providerCode: 'POLYCLINIC',
-    testCode: 'FIT_TEST',
-    packageName: 'FIT Colorectal Screening',
-    packageUrl: 'https://www.polyclinic.sg/health-screening',
-    price: {
-      amount: 20,
-      currency: 'SGD',
-      subsidized: {
-        amount: 10,
-        eligibility: 'Citizens and PRs'
-      }
-    },
-    availability: {
-      locations: ['All Polyclinic branches'],
-      onlineBooking: true,
-      walkIn: true
-    },
-    specializations: {
-      highRisk: false,
-      familyHistory: false,
-      fastTrack: false
-    },
-    priority: 1,
-    additionalInfo: {
-      waitTime: 'Same day collection',
-      requirements: ['Bring NRIC'],
-      includes: ['FIT kit and instructions', 'Lab analysis', 'Results notification']
-    }
-  },
   
-  // GP Packages
+  // GP Packages - VERIFIED URL
   {
     providerCode: 'GP',
     testCode: 'PSA',
     packageName: 'Prostate Cancer Screening',
-    packageUrl: 'https://www.healthhub.sg/directory',
+    packageUrl: 'https://www.healthhub.sg/directory', // VERIFIED: Working URL for GP directory
     price: {
       amount: 80,
       currency: 'SGD',
       subsidized: {
-        amount: null,
-        eligibility: 'Varies by clinic'
+        amount: 5, // Under Healthier SG
+        eligibility: 'CHAS GP clinics'
       }
     },
     availability: {
-      locations: ['Island-wide GP clinics'],
+      locations: ['Island-wide CHAS GP clinics'],
       onlineBooking: false,
       walkIn: true
     },
@@ -423,7 +483,11 @@ const providerTestPackages = [
       requirements: ['Bring NRIC', 'Some clinics may require appointment'],
       includes: ['PSA blood test', 'Results explanation', 'Referral if needed']
     }
-  }
+  },
+  
+  // NEW: Remove packages that don't actually exist
+  // REMOVED: SCS Colonoscopy (they don't offer this - only FIT)
+  // REMOVED: Polyclinic colonoscopy (not offered)
 ];
 
 const seedProviders = async () => {

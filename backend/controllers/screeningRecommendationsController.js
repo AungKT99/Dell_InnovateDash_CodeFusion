@@ -420,7 +420,7 @@ const getAllAvailableScreenings = async (req, res) => {
         // Format the data similar to personalized recommendations
         return {
           testName: test.name,
-          priority: 'Medium', // Default priority for non-personalized
+          // priority: 'Medium', // Default priority for non-personalized
           whyText: test.description || `General screening for ${test.name.toLowerCase()}`,
           providers: packages.map(pkg => ({
             code: pkg.providerId.code,
@@ -448,10 +448,13 @@ const getAllAvailableScreenings = async (req, res) => {
       })
     );
 
+    // Shuffle the array using Fisher-Yates algorithm
+    const shuffledScreeningTests = shuffleArray(screeningTestsWithPackages);
+
     res.status(200).json({
       success: true,
       data: {
-        screeningTests: screeningTestsWithPackages
+        screeningTests: shuffledScreeningTests
       }
     });
 
@@ -463,6 +466,16 @@ const getAllAvailableScreenings = async (req, res) => {
     });
   }
 };
+
+// Helper function to shuffle array using Fisher-Yates algorithm
+function shuffleArray(array) {
+  const shuffled = [...array]; // Create a copy to avoid mutating original
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 // Update your module.exports to include the new function
 module.exports = {
