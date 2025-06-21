@@ -21,15 +21,15 @@ const CancerRiskHelpers = {
       case "MODERATE RISK": 
       case "MODERATE_RISK":
         return { 
-          primary: "#f472b6", 
-          light: "rgba(244, 114, 182, 0.1)", 
-          border: "rgba(244, 114, 182, 0.2)", 
+          primary: "#d946ef",
+          light: "rgba(217, 70, 239, 0.1)", 
+          border: "rgba(217, 70, 239, 0.2)", 
           hover: "#b0004e" 
         };
       case "LOW RISK": 
       case "LOW_RISK":
         return { 
-          primary: "#f472b6", 
+          primary: "#e73a8c",
           light: "rgba(244, 114, 182, 0.1)", 
           border: "rgba(244, 114, 182, 0.2)", 
           hover: "#ec4899" 
@@ -403,15 +403,18 @@ const RiskSimulator = () => {
                 <div 
                   className={`risk-score ${isLoaded ? 'loaded' : ''}`} 
                   style={{ 
-                    fontSize: '2.5rem',
-                    color: simulatedColors.primary
+                    fontSize: '2.5rem'
                   }}
                 >
                   {simulatedRiskScore}
                   <span className="risk-score-max">%</span>
                 </div>
                 <div className="risk-level" style={{ marginTop: '0.5rem' }}>
-                  <span className="level-text">{simulatedRiskLevel}</span>
+                  <span 
+                    className="level-text" 
+                  >
+                    {simulatedRiskLevel.replace('_', ' ')}
+                  </span>
                 </div>
               </div>
             </div>
