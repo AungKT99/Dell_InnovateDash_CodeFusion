@@ -142,7 +142,7 @@ const RiskSimulator = () => {
           
           setModifiableFactors(transformedFactors);
 
-          // Set initial risk scores
+          // Set initial risk scores - both should be the same initially
           const initialRisk = response.data.riskScore?.percentage || 0;
           setCurrentRiskScore(initialRisk);
           setSimulatedRiskScore(initialRisk);
@@ -240,22 +240,34 @@ const RiskSimulator = () => {
   // Calculate simulated risk when factors change
   useEffect(() => {
     if (modifiableFactors.length > 0) {
-      // Calculate the difference in points for modifiable factors only
-      let totalPointDifference = 0;
+      // Calculate baseline risk from non-modifiable factors
+      const nonModifiableFactors = dashboardData?.nonModifiableFactors || [];
+      const baselineRisk = nonModifiableFactors.reduce((sum, factor) => {
+        return sum + factor.points;
+      }, 0);
       
+      // Calculate current modifiable factors contribution
+      let currentModifiablePoints = 0;
       modifiableFactors.forEach(factor => {
-        const pointDifference = factor.simulatedValue - factor.currentValue;
         const multiplier = factor.multiplier || 1;
-        const weightedDifference = pointDifference * multiplier;
-        totalPointDifference += weightedDifference;
+        const weightedPoints = factor.currentValue * multiplier;
+        currentModifiablePoints += weightedPoints;
       });
       
-      // Apply the point difference to the current risk score
-      // The risk score is already a percentage, so we need to convert points to percentage
-      const maxPossiblePoints = 320; // From the quiz scoring system
-      const percentageDifference = (totalPointDifference / maxPossiblePoints) * 100;
+      // Calculate simulated modifiable factors contribution
+      let simulatedModifiablePoints = 0;
+      modifiableFactors.forEach(factor => {
+        const multiplier = factor.multiplier || 1;
+        const weightedPoints = factor.simulatedValue * multiplier;
+        simulatedModifiablePoints += weightedPoints;
+      });
       
-      const newSimulatedRisk = Math.max(0, Math.min(100, currentRiskScore + percentageDifference));
+      // Calculate total simulated points: baseline + simulated modifiable
+      const totalSimulatedPoints = baselineRisk + simulatedModifiablePoints;
+      
+      // Convert to percentage
+      const maxPossiblePoints = 320; // From the quiz scoring system
+      const newSimulatedRisk = Math.max(0, Math.min(100, (totalSimulatedPoints / maxPossiblePoints) * 100));
       setSimulatedRiskScore(Math.round(newSimulatedRisk));
       
       // Determine risk level
@@ -267,7 +279,7 @@ const RiskSimulator = () => {
       }
       setSimulatedRiskLevel(newRiskLevel);
     }
-  }, [modifiableFactors, currentRiskScore]);
+  }, [modifiableFactors, dashboardData]);
 
   // Handle slider change
   const handleSliderChange = (factorId, newValue) => {
@@ -472,8 +484,7 @@ const RiskSimulator = () => {
                     factor.sliderValue > factor.currentValue ? 'positive' : 
                     factor.sliderValue < factor.currentValue ? 'negative' : 'neutral'
                   }`}>
-                    {factor.sliderValue > factor.currentValue ? '+' : ''}
-                    {factor.sliderValue - factor.currentValue}%
+                    {Math.round((factor.sliderValue * factor.multiplier / 320) * 100)}%
                   </div>
                 </div>
               </div>

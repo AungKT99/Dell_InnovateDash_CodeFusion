@@ -161,6 +161,42 @@ const buildAllModifiableFactors = (answers, quiz) => {
   return modifiableFactors.sort((a, b) => b.points - a.points);
 };
 
+/* -------- BUILD NON-MODIFIABLE FACTORS -------- */
+const buildNonModifiableFactors = (answers, quiz) => {
+  const nonModifiableFactors = [];
+  const maxTotalRiskScore = quiz.scoring.maxTotalPoints;
+
+  // Define non-modifiable question IDs (age, family history, previous cancer, etc.)
+  const NON_MODIFIABLE_QUESTIONS = ['q1', 'q2', 'q5', 'q10', 'q11'];
+
+  NON_MODIFIABLE_QUESTIONS.forEach(questionId => {
+    const question = quiz.questions.find((q) => q.id === questionId);
+    if (!question || !question.displayData) return;
+
+    // Find user's answer for this question
+    const userAnswer = answers.find((answer) => answer.qid === questionId);
+    const selectedOption = userAnswer ? question.options.find((opt) => opt.id === userAnswer.optionId) : null;
+    
+    const score = userAnswer ? userAnswer.categoryScore || 0 : 0;
+    const percentage = Math.round((score / maxTotalRiskScore) * 100);
+    const description = selectedOption ? selectedOption.text : 'Not specified';
+
+    nonModifiableFactors.push({
+      id: questionId,
+      icon: question.displayData.icon,
+      name: question.displayData.shortName,
+      points: score,
+      percentage,
+      description: description,
+      rationale: question.rationale,
+      basePoints: selectedOption ? selectedOption.points : 0,
+      multiplier: question.multiplier
+    });
+  });
+
+  return nonModifiableFactors.sort((a, b) => b.points - a.points);
+};
+
 /* -------- GET DASHBOARD RISK DATA -------- */
 const getDashboardRiskData = async (req, res) => {
   try {
@@ -201,6 +237,7 @@ const getDashboardRiskData = async (req, res) => {
     const { age, gender } = extractUserProfile(latestAttempt.answers, quiz);
     const riskBreakdown   = buildRiskBreakdown(latestAttempt.answers, quiz);
     const modifiableFactors = buildAllModifiableFactors(latestAttempt.answers, quiz);
+    const nonModifiableFactors = buildNonModifiableFactors(latestAttempt.answers, quiz);
     const riskColors      = RISK_COLORS[latestAttempt.riskLevel] || RISK_COLORS.HIGH_RISK;
 
     const dashboardData = {
@@ -217,6 +254,7 @@ const getDashboardRiskData = async (req, res) => {
       },
       riskBreakdown,
       modifiableFactors,
+      nonModifiableFactors,
       colors: {
         highRisk:     RISK_COLORS.HIGH_RISK,
         moderateRisk: RISK_COLORS.MODERATE_RISK,
