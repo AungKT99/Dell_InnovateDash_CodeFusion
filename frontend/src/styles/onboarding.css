@@ -80,3 +80,50 @@ h2 {
 .hidden {
   display: none;
 }
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+  .onboarding-box {
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 100%;
+    min-height: 100vh;
+  }
+
+  h2 {
+    font-size: 1.25rem; /* 20px */
+  }
+
+  .question strong {
+    font-size: 1rem; /* 16px */
+  }
+
+  .options {
+    gap: 8px;
+  }
+
+  .option {
+    padding: 8px 12px;
+    font-size: 0.875rem; /* 14px */
+  }
+
+  .buttons {
+    flex-direction: column-reverse; /* Stack buttons vertically */
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 1rem; /* 16px */
+  }
+
+  .buttons button:first-child {
+     background-color: transparent;
+     color: #b0004e;
+     font-weight: 500;
+  }
+}

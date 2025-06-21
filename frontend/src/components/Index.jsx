@@ -1,20 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Header from './Header';
 import '../styles/styles.css';
 
 const Index = () => {
   return (
     <div>
-      <header>
-        <div className="logo">Empower+</div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/challenges">Challenges</Link>
-          <Link to="/profile">Profile</Link>
-        </nav>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="hero-content">
@@ -22,7 +14,7 @@ const Index = () => {
             <h1>Your Health Journey Starts Here</h1>
             <p>Empower+ guides you with personalized steps, emotional motivation, and social support. Start transforming your health today.</p>
             <div className="hero-buttons">
-              <Link to="/onboarding" className="start-btn">Start My Journey</Link>
+              <Link to="/LifeStyleQuiz" className="start-btn">Start My Journey</Link>
               <Link to="/faq" className="learn-btn">Learn More</Link>
             </div>
           </div>
