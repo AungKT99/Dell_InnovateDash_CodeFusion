@@ -444,56 +444,59 @@ const RiskSimulator = () => {
           <div 
             className="risk-factors-scroll-container" 
             style={{
-              maxHeight: '240px', // Space for ~3 factors
+              maxHeight: '300px',
               overflowY: 'auto',
-              paddingRight: '8px',
+              padding: '0 4px',
             }}
           >
-            {modifiableFactors.map((factor, index) => (
-              <div 
-                key={factor.id} 
-                className={`risk-factor-item ${isLoaded ? 'loaded' : ''}`}
-                style={{ transitionDelay: `${index * 100 + 800}ms` }}
-              >
-                <div className="factor-info">
-                  <span className="factor-icon">{factor.icon}</span>
-                  <div className="factor-details">
-                    <div className="factor-name">
-                      {factor.name}
-                    </div>
-                    <div className="factor-description">
-                      {factor.description}
-                    </div>
-                    {factor.rationale && (
-                      <div className="factor-rationale">
-                        {factor.rationale}
+            {modifiableFactors.map((factor, index) => {
+              const percentage = Math.round((factor.sliderValue * factor.multiplier / 320) * 100);
+              const hasImproved = factor.sliderValue < factor.currentValue;
+              const hasDeclined = factor.sliderValue > factor.currentValue;
+
+              return (
+                <div 
+                  key={factor.id} 
+                  className={`risk-factor-item-simulator ${isLoaded ? 'loaded' : ''}`}
+                  style={{ transitionDelay: `${index * 100 + 800}ms` }}
+                >
+                  <div className="factor-info">
+                    <span className="factor-icon">{factor.icon}</span>
+                    <div className="factor-details">
+                      <div className="factor-name">
+                        {factor.name}
                       </div>
-                    )}
+                      <div className="factor-description">
+                        {factor.description}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Slider and Percentage */}
+                  <div className="factor-control">
+                    <div className="slider-wrapper">
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={factor.sliderValue}
+                        onChange={(e) => handleSliderChange(factor.id, parseInt(e.target.value))}
+                        className="risk-simulator-slider"
+                      />
+                      <div className="slider-labels">
+                        <span>{factor.simulatorConfig?.leftLabel || 'Low'}</span>
+                        <span>{factor.simulatorConfig?.rightLabel || 'High'}</span>
+                      </div>
+                    </div>
+                    <div className={`factor-percentage-display ${
+                      hasDeclined ? 'positive' : hasImproved ? 'negative' : 'neutral'
+                    }`}>
+                      {percentage > 0 ? `+${percentage}%` : '0%'}
+                    </div>
                   </div>
                 </div>
-                {/* Slider */}
-                <div className="slider-container">
-                  <div className="slider-labels">
-                    <span>{factor.simulatorConfig?.leftLabel || 'Low'}</span>
-                    <span>{factor.simulatorConfig?.rightLabel || 'High'}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    value={factor.sliderValue}
-                    onChange={(e) => handleSliderChange(factor.id, parseInt(e.target.value))}
-                    className="risk-simulator-slider"
-                  />
-                  <div className={`slider-value-display ${
-                    factor.sliderValue > factor.currentValue ? 'positive' : 
-                    factor.sliderValue < factor.currentValue ? 'negative' : 'neutral'
-                  }`}>
-                    {Math.round((factor.sliderValue * factor.multiplier / 320) * 100)}%
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {/* Scroll indicator - only show if there are more than 3 factors */}
           {modifiableFactors.length > 3 && (
