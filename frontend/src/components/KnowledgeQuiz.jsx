@@ -147,17 +147,18 @@ const KnowledgeQuiz = () => {
             <h2 className="text-3xl font-bold" style={{ color: '#b0004e' }}>Quiz Complete!</h2>
           </div>
 
-          <div className={`rounded-2xl px-6 py-8 mb-10 shadow-inner text-center ${scoreColor}`}>
+          <div className={`rounded-2xl px-6 py-8 mb-10 shadow-inner text-center ${getScoreLevelColor(results.score)}`}>
             <div className="text-6xl font-bold mb-2 tracking-tight">{results.score}</div>
             <p className="text-lg font-medium mb-2">Your Cancer Knowledge Score</p>
             <p className="text-sm">You got {results.correctAnswers} out of 10 questions correct</p>
+          </div>
 
           <div className="text-white p-6 rounded-lg mb-8 text-center" style={{ background: 'linear-gradient(135deg, #b0004e, #8A2BE2)' }}>
               <h3 className="text-xl font-bold mb-2">🎯 Want to know YOUR actual cancer risk?</h3>
               <p className="opacity-90 mb-4 max-w-xl mx-auto">
                 Get a personalized risk assessment based on your lifestyle, family history, and health habits — with practical tips to reduce your risk.
               </p>
-              <Link to="/lifestyle_quiz" className="inline-block bg-white font-bold px-6 py-3 rounded-lg transition-colors" style={{color: '#b0004e', boxShadow: '0 4px 14px 0 rgba(0,0,0,0.1)'}}>
+              <Link to="/registerUser" className="inline-block bg-white font-bold px-6 py-3 rounded-lg transition-colors" style={{color: '#b0004e', boxShadow: '0 4px 14px 0 rgba(0,0,0,0.1)'}}>
                 Take the Lifestyle Quiz
               </Link>
           </div>
