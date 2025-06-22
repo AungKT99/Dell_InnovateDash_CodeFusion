@@ -5,13 +5,16 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 
+
+
+
 // Import routes
 const authRoutes = require('./routes/authRoutes'); //Auth Route
 const quizRoutes = require('./routes/quiz'); //Quiz Route
 const lifeStyleQuizRoutes = require('./routes/lifeStyleQuiz'); // LifeStyleQuiz Route
 const dashboardRoutes = require('./routes/dashboard');
 const screeningRoutes = require('./routes/screeningRecommendations'); // ADD THIS LINE
-
+const chatRoutes = require('./routes/chat');
 // Connect to database
 connectDB();
 
@@ -35,6 +38,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/lifestyle-quiz', lifeStyleQuizRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/screening', screeningRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

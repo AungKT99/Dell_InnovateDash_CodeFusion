@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
+
+
 // Auth pages
 import Login from './components/Login';
 import Register from './components/Register';
@@ -19,6 +21,8 @@ import LifestyleQuiz from './components/LifeStyleQuiz';
 
 import './index.css';
 
+//Chat
+import ChatbotPage from './components/ChatbotPage';
 
 function App() {
   return (
@@ -61,6 +65,9 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
+          <Route path="/chatbot" element={<ChatbotPage />} />
+
           
           {/* Catch-all: if unknown route, redirect to dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

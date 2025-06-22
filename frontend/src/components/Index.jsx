@@ -1,10 +1,13 @@
-
+import Header from './Header';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from './Header';
 import '../styles/styles.css';
+import ChatbotButton from './ChatbotButton';
+import { useAuth } from '../contexts/AuthContext';
 
 const Index = () => {
+  const {user } = useAuth(); // M
+// check if logged in
   return (
     <div>
       <Header />
@@ -46,7 +49,10 @@ const Index = () => {
       <footer>
         &copy; 2025 Empower+ | Made with ❤️ for Singapore Cancer Society
       </footer>
+      {/* ✅ Floating Chatbot button only if user is logged in */}
+      {<ChatbotButton />}
     </div>
+
   );
 };
 
