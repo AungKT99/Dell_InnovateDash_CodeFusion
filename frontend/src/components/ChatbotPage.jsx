@@ -4,6 +4,23 @@ import API from '../api/userApi';
 import { localFAQAnswer } from '../utils/faq';
 import { useAuth } from '../contexts/AuthContext';
 
+// Helper component to render text with bold tags from markdown
+const BoldRenderer = ({ text }) => {
+  if (!text || !text.includes('**')) {
+    return text;
+  }
+
+  const parts = text.split('**');
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        index % 2 !== 0 ? <strong key={index}>{part}</strong> : part
+      )}
+    </>
+  );
+};
+
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -144,7 +161,7 @@ const ChatbotPage = () => {
                     }
                     text-base max-w-xs md:max-w-md break-words`}
                 >
-                  {msg.text}
+                  <BoldRenderer text={msg.text} />
                 </span>
                 
                 {/* Show recommendations if available */}
