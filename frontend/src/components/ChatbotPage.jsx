@@ -26,7 +26,6 @@ const ChatbotPage = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPersonalized, setIsPersonalized] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
   const navigate = useNavigate();
   const chatEndRef = useRef(null);
   const { user } = useAuth();
@@ -88,11 +87,6 @@ const ChatbotPage = () => {
       }]);
       
       setIsPersonalized(res.data.personalized);
-      setDebugInfo({
-        personalized: res.data.personalized,
-        topic: res.data.topic,
-        confidence: res.data.confidence
-      });
     } catch (err) {
       console.error('Chat error:', err);
       setMessages((prev) => [
@@ -128,15 +122,6 @@ const ChatbotPage = () => {
           ✖
         </button>
       </div>
-
-      {/* Debug Info (temporary) */}
-      {debugInfo && (
-        <div className="max-w-xl mx-auto mb-4 p-3 bg-gray-100 rounded-lg text-xs">
-          <strong>Debug:</strong> Personalized: {debugInfo.personalized ? 'Yes' : 'No'} | 
-          Topic: {debugInfo.topic} | Confidence: {debugInfo.confidence}
-          {user && <div>User ID: {user._id}</div>}
-        </div>
-      )}
 
       {/* Chat window */}
       <div className="flex-1 overflow-y-auto px-2 md:px-0">
