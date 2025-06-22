@@ -1,11 +1,10 @@
-
-
 const HealthcareProvider = require('../models/HealthcareProvider');
 const ScreeningTest = require('../models/ScreeningTest');
 const ProviderTestPackage = require('../models/ProviderTestPackage');
 
 /**
  * Extract user profile from quiz answers
+ * Converts raw quiz responses into structured user profile for recommendation logic
  */
 function extractUserProfile(answers, quiz) {
   const profile = {
@@ -78,141 +77,56 @@ function getAgeFromGroup(ageGroup) {
 }
 
 /**
- * Determine priority level based on risk factors
+ * Get list of test codes that have available packages
+ * Returns array of test codes to avoid recommending tests without providers
  */
-function calculatePriority(riskScore, hasHighRiskFactors, isOverdue) {
-  if (isOverdue || (riskScore >= 61 && hasHighRiskFactors)) {
-    return 'High';
-  } else if (riskScore >= 31 || hasHighRiskFactors) {
-    return 'Medium';
-  }
-  return 'Low';
-}
-
-/**
- * Get provider packages for a specific test
- */
-async function getProviderPackagesForTest(testCode, userProfile, priority) {
+async function getAvailableTestCodes() {
   try {
-    // Find the test first
-    const test = await ScreeningTest.findOne({ code: testCode, isActive: true });
-    if (!test) return [];
-
-    // Build query based on user needs
-    let query = {
-      testId: test._id,
-      isActive: true
-    };
-
-    // Find packages and populate provider information
-    let packages = await ProviderTestPackage.find(query)
-      .populate('providerId', 'name code website contactInfo')
-      .populate('testId', 'name code')
-      .sort({ priority: -1 }); // Higher priority first
-
-    // Filter packages based on user requirements
-    if (priority === 'High') {
-      // For high priority, prefer providers with specializations
-      packages = packages.filter(pkg => 
-        pkg.specializations.highRisk || 
-        pkg.specializations.familyHistory ||
-        pkg.specializations.fastTrack
-      ).concat(packages.filter(pkg => 
-        !pkg.specializations.highRisk && 
-        !pkg.specializations.familyHistory &&
-        !pkg.specializations.fastTrack
-      ));
-    }
-
-    return packages.slice(0, 3); // Limit to top 3 providers per test
+    const availableTests = await ProviderTestPackage.distinct('testId');
+    const testCodes = await ScreeningTest.find({ 
+      _id: { $in: availableTests }, 
+      isActive: true 
+    }).select('code');
+    
+    return testCodes.map(test => test.code);
   } catch (error) {
-    console.error('Error fetching provider packages:', error);
+    console.error('Error fetching available test codes:', error);
     return [];
   }
 }
 
 /**
- * Main recommendation engine (UPDATED to use database)
+ * Main recommendation engine - BUSINESS LOGIC ONLY
+ * Returns array of simple recommendation objects with test codes, priorities, and reasons
+ * Controller handles all data fetching and UI formatting
  */
 async function generateScreeningRecommendations(userProfile, quizAttempt) {
   const recommendations = [];
   const { age, gender, familyHistory, smoking, previousCancer, bmi, alcohol, diet, exercise } = userProfile;
   const riskScore = quizAttempt.percentageScore;
-  const riskLevel = quizAttempt.riskLevel;
-
+  
+  // Get available test codes to avoid recommending unavailable tests
+  const availableTests = await getAvailableTestCodes();
+  
   // COLONOSCOPY RULES
-  if (shouldRecommendColonoscopy(userProfile, riskScore)) {
-    const priority = calculateColonoscopyPriority(userProfile, riskScore);
-    const reasons = getColonoscopyReasons(userProfile, riskScore);
-    const packages = await getProviderPackagesForTest('COLONOSCOPY', userProfile, priority);
-    
+  if (shouldRecommendColonoscopy(userProfile, riskScore) && availableTests.includes('COLONOSCOPY')) {
     recommendations.push({
-      test: 'COLONOSCOPY',
+      testCode: 'COLONOSCOPY',
       testName: 'Colonoscopy',
-      priority,
-      reasons,
-      packages: packages.map(pkg => ({
-        provider: {
-          code: pkg.providerId.code,
-          name: pkg.providerId.name,
-          website: pkg.providerId.website,
-          phone: pkg.providerId.contactInfo?.phone,
-          email: pkg.providerId.contactInfo?.email
-        },
-        package: {
-          name: pkg.packageName,
-          url: pkg.packageUrl,
-          price: pkg.price,
-          waitTime: pkg.additionalInfo?.waitTime,
-          onlineBooking: pkg.availability?.onlineBooking,
-          locations: pkg.availability?.locations,
-          includes: pkg.additionalInfo?.includes,
-          requirements: pkg.additionalInfo?.requirements
-        },
-        suitability: {
-          highRisk: pkg.specializations?.highRisk,
-          familyHistory: pkg.specializations?.familyHistory,
-          fastTrack: pkg.specializations?.fastTrack
-        }
-      }))
+      priority: calculateColonoscopyPriority(userProfile, riskScore),
+      reasons: getColonoscopyReasons(userProfile, riskScore)
     });
   }
 
   // MAMMOGRAM RULES (Female only)
-  if (gender === 'Female' && shouldRecommendMammogram(userProfile, riskScore)) {
-    const priority = calculateMammogramPriority(userProfile, riskScore);
-    const reasons = getMammogramReasons(userProfile, riskScore);
-    const packages = await getProviderPackagesForTest('MAMMOGRAM', userProfile, priority);
-    
+  if (gender === 'Female' && 
+      shouldRecommendMammogram(userProfile, riskScore) && 
+      availableTests.includes('MAMMOGRAM')) {
     recommendations.push({
-      test: 'MAMMOGRAM',
+      testCode: 'MAMMOGRAM',
       testName: 'Mammogram',
-      priority,
-      reasons,
-      packages: packages.map(pkg => ({
-        provider: {
-          code: pkg.providerId.code,
-          name: pkg.providerId.name,
-          website: pkg.providerId.website,
-          phone: pkg.providerId.contactInfo?.phone,
-          email: pkg.providerId.contactInfo?.email
-        },
-        package: {
-          name: pkg.packageName,
-          url: pkg.packageUrl,
-          price: pkg.price,
-          waitTime: pkg.additionalInfo?.waitTime,
-          onlineBooking: pkg.availability?.onlineBooking,
-          locations: pkg.availability?.locations,
-          includes: pkg.additionalInfo?.includes,
-          requirements: pkg.additionalInfo?.requirements
-        },
-        suitability: {
-          highRisk: pkg.specializations?.highRisk,
-          familyHistory: pkg.specializations?.familyHistory,
-          fastTrack: pkg.specializations?.fastTrack
-        }
-      }))
+      priority: calculateMammogramPriority(userProfile, riskScore),
+      reasons: getMammogramReasons(userProfile, riskScore)
     });
   }
 
@@ -220,114 +134,36 @@ async function generateScreeningRecommendations(userProfile, quizAttempt) {
   if (gender === 'Female' && age >= 25) {
     const cervicalTestCode = age >= 30 ? 'HPV_TEST' : 'PAP_SMEAR';
     const testName = age >= 30 ? 'HPV Test' : 'Pap Smear';
-    const priority = riskScore >= 31 ? 'Medium' : 'Low';
-    const packages = await getProviderPackagesForTest(cervicalTestCode, userProfile, priority);
     
-    recommendations.push({
-      test: cervicalTestCode,
-      testName,
-      priority,
-      reasons: [`Women ${age >= 30 ? '30+' : '25-29'} should undergo regular cervical cancer screening`],
-      packages: packages.map(pkg => ({
-        provider: {
-          code: pkg.providerId.code,
-          name: pkg.providerId.name,
-          website: pkg.providerId.website,
-          phone: pkg.providerId.contactInfo?.phone,
-          email: pkg.providerId.contactInfo?.email
-        },
-        package: {
-          name: pkg.packageName,
-          url: pkg.packageUrl,
-          price: pkg.price,
-          waitTime: pkg.additionalInfo?.waitTime,
-          onlineBooking: pkg.availability?.onlineBooking,
-          locations: pkg.availability?.locations,
-          includes: pkg.additionalInfo?.includes,
-          requirements: pkg.additionalInfo?.requirements
-        },
-        suitability: {
-          highRisk: pkg.specializations?.highRisk,
-          familyHistory: pkg.specializations?.familyHistory,
-          fastTrack: pkg.specializations?.fastTrack
-        }
-      }))
-    });
+    if (availableTests.includes(cervicalTestCode)) {
+      recommendations.push({
+        testCode: cervicalTestCode,
+        testName: testName,
+        priority: riskScore >= 31 ? 'Medium' : 'Low',
+        reasons: [`Women ${age >= 30 ? '30+' : '25-29'} should undergo regular cervical cancer screening`]
+      });
+    }
   }
 
   // FIT TEST RULES
-  if (shouldRecommendFIT(userProfile, riskScore)) {
-    const priority = calculateFITPriority(userProfile, riskScore);
-    const reasons = getFITReasons(userProfile, riskScore);
-    const packages = await getProviderPackagesForTest('FIT_TEST', userProfile, priority);
-    
+  if (shouldRecommendFIT(userProfile, riskScore) && availableTests.includes('FIT_TEST')) {
     recommendations.push({
-      test: 'FIT_TEST',
+      testCode: 'FIT_TEST',
       testName: 'FIT Test (Stool Analysis)',
-      priority,
-      reasons,
-      packages: packages.map(pkg => ({
-        provider: {
-          code: pkg.providerId.code,
-          name: pkg.providerId.name,
-          website: pkg.providerId.website,
-          phone: pkg.providerId.contactInfo?.phone,
-          email: pkg.providerId.contactInfo?.email
-        },
-        package: {
-          name: pkg.packageName,
-          url: pkg.packageUrl,
-          price: pkg.price,
-          waitTime: pkg.additionalInfo?.waitTime,
-          onlineBooking: pkg.availability?.onlineBooking,
-          locations: pkg.availability?.locations,
-          includes: pkg.additionalInfo?.includes,
-          requirements: pkg.additionalInfo?.requirements
-        },
-        suitability: {
-          highRisk: pkg.specializations?.highRisk,
-          familyHistory: pkg.specializations?.familyHistory,
-          fastTrack: pkg.specializations?.fastTrack
-        }
-      }))
+      priority: calculateFITPriority(userProfile, riskScore),
+      reasons: getFITReasons(userProfile, riskScore)
     });
   }
 
   // PSA TEST RULES (Male only)
-  if (gender === 'Male' && shouldRecommendPSA(userProfile, riskScore)) {
-    const priority = calculatePSAPriority(userProfile, riskScore);
-    const reasons = getPSAReasons(userProfile, riskScore);
-    const packages = await getProviderPackagesForTest('PSA', userProfile, priority);
-    
+  if (gender === 'Male' && 
+      shouldRecommendPSA(userProfile, riskScore) && 
+      availableTests.includes('PSA')) {
     recommendations.push({
-      test: 'PSA',
+      testCode: 'PSA',
       testName: 'PSA Test',
-      priority,
-      reasons,
-      packages: packages.map(pkg => ({
-        provider: {
-          code: pkg.providerId.code,
-          name: pkg.providerId.name,
-          website: pkg.providerId.website,
-          phone: pkg.providerId.contactInfo?.phone,
-          email: pkg.providerId.contactInfo?.email
-        },
-        package: {
-          name: pkg.packageName,
-          url: pkg.packageUrl,
-          price: pkg.price,
-          waitTime: pkg.additionalInfo?.waitTime,
-          onlineBooking: pkg.availability?.onlineBooking,
-          locations: pkg.availability?.locations,
-          includes: pkg.additionalInfo?.includes,
-          requirements: pkg.additionalInfo?.requirements
-        },
-        suitability: {
-          highRisk: pkg.specializations?.highRisk,
-          familyHistory: pkg.specializations?.familyHistory,
-          fastTrack: pkg.specializations?.fastTrack
-        }
-      }))
+      priority: calculatePSAPriority(userProfile, riskScore),
+      reasons: getPSAReasons(userProfile, riskScore)
     });
   }
 
@@ -336,168 +172,70 @@ async function generateScreeningRecommendations(userProfile, quizAttempt) {
     const priority = calculateLiverScreeningPriority(userProfile, riskScore);
     
     // AFP Test
-    const afpPackages = await getProviderPackagesForTest('AFP', userProfile, priority);
-    if (afpPackages.length > 0) {
+    if (availableTests.includes('AFP')) {
       recommendations.push({
-        test: 'AFP',
+        testCode: 'AFP',
         testName: 'Alpha-Fetoprotein (AFP)',
-        priority,
-        reasons: ['High alcohol consumption increases liver cancer risk'],
-        packages: afpPackages.map(pkg => ({
-          provider: {
-            code: pkg.providerId.code,
-            name: pkg.providerId.name,
-            website: pkg.providerId.website,
-            phone: pkg.providerId.contactInfo?.phone,
-            email: pkg.providerId.contactInfo?.email
-          },
-          package: {
-            name: pkg.packageName,
-            url: pkg.packageUrl,
-            price: pkg.price,
-            waitTime: pkg.additionalInfo?.waitTime,
-            onlineBooking: pkg.availability?.onlineBooking,
-            locations: pkg.availability?.locations,
-            includes: pkg.additionalInfo?.includes,
-            requirements: pkg.additionalInfo?.requirements
-          },
-          suitability: {
-            highRisk: pkg.specializations?.highRisk,
-            familyHistory: pkg.specializations?.familyHistory,
-            fastTrack: pkg.specializations?.fastTrack
-          }
-        }))
+        priority: priority,
+        reasons: ['High alcohol consumption increases liver cancer risk']
       });
     }
     
-    // Liver Ultrasound
-    const liverUSPackages = await getProviderPackagesForTest('LIVER_ULTRASOUND', userProfile, priority);
-    if (liverUSPackages.length > 0) {
+    // Liver Ultrasound  
+    if (availableTests.includes('LIVER_ULTRASOUND')) {
       recommendations.push({
-        test: 'LIVER_ULTRASOUND',
+        testCode: 'LIVER_ULTRASOUND',
         testName: 'Liver Ultrasound',
-        priority,
-        reasons: ['High alcohol consumption requires liver monitoring'],
-        packages: liverUSPackages.map(pkg => ({
-          provider: {
-            code: pkg.providerId.code,
-            name: pkg.providerId.name,
-            website: pkg.providerId.website,
-            phone: pkg.providerId.contactInfo?.phone,
-            email: pkg.providerId.contactInfo?.email
-          },
-          package: {
-            name: pkg.packageName,
-            url: pkg.packageUrl,
-            price: pkg.price,
-            waitTime: pkg.additionalInfo?.waitTime,
-            onlineBooking: pkg.availability?.onlineBooking,
-            locations: pkg.availability?.locations,
-            includes: pkg.additionalInfo?.includes,
-            requirements: pkg.additionalInfo?.requirements
-          },
-          suitability: {
-            highRisk: pkg.specializations?.highRisk,
-            familyHistory: pkg.specializations?.familyHistory,
-            fastTrack: pkg.specializations?.fastTrack
-          }
-        }))
+        priority: priority,
+        reasons: ['High alcohol consumption requires liver monitoring']
       });
     }
   }
 
   // LUNG SCREENING RULES
-  if (shouldRecommendLungScreening(userProfile, riskScore)) {
-    const priority = 'High';
-    const packages = await getProviderPackagesForTest('LOW_DOSE_CT', userProfile, priority);
-    
-    if (packages.length > 0) {
-      recommendations.push({
-        test: 'LOW_DOSE_CT',
-        testName: 'Low-Dose CT Scan',
-        priority,
-        reasons: ['Heavy smoking history significantly increases lung cancer risk'],
-        packages: packages.map(pkg => ({
-          provider: {
-            code: pkg.providerId.code,
-            name: pkg.providerId.name,
-            website: pkg.providerId.website,
-            phone: pkg.providerId.contactInfo?.phone,
-            email: pkg.providerId.contactInfo?.email
-          },
-          package: {
-            name: pkg.packageName,
-            url: pkg.packageUrl,
-            price: pkg.price,
-            waitTime: pkg.additionalInfo?.waitTime,
-            onlineBooking: pkg.availability?.onlineBooking,
-            locations: pkg.availability?.locations,
-            includes: pkg.additionalInfo?.includes,
-            requirements: pkg.additionalInfo?.requirements
-          },
-          suitability: {
-            highRisk: pkg.specializations?.highRisk,
-            familyHistory: pkg.specializations?.familyHistory,
-            fastTrack: pkg.specializations?.fastTrack
-          }
-        }))
-      });
-    }
+  if (shouldRecommendLungScreening(userProfile, riskScore) && availableTests.includes('LOW_DOSE_CT')) {
+    recommendations.push({
+      testCode: 'LOW_DOSE_CT',
+      testName: 'Low-Dose CT Scan',
+      priority: 'High',
+      reasons: ['Heavy smoking history significantly increases lung cancer risk']
+    });
   }
 
   // BASIC HEALTH SCREENING for high-risk individuals
   if (riskScore >= 31) {
-    const basicTests = ['BLOOD_PRESSURE', 'CHOLESTEROL', 'DIABETES_SCREENING'];
-    const basicReasons = [
-      'Regular monitoring for cardiovascular health',
-      'Dietary factors may affect cholesterol levels', 
-      'BMI and lifestyle factors increase diabetes risk'
+    const basicTests = [
+      { code: 'BLOOD_PRESSURE', name: 'Blood Pressure Test', reason: 'Regular monitoring for cardiovascular health' },
+      { code: 'CHOLESTEROL', name: 'Cholesterol Test', reason: 'Dietary factors may affect cholesterol levels' },
+      { code: 'DIABETES_SCREENING', name: 'Diabetes Screening', reason: 'BMI and lifestyle factors increase diabetes risk' }
     ];
     
-    for (let i = 0; i < basicTests.length; i++) {
-      const packages = await getProviderPackagesForTest(basicTests[i], userProfile, 'Medium');
-      if (packages.length > 0) {
+    basicTests.forEach(test => {
+      if (availableTests.includes(test.code)) {
         recommendations.push({
-          test: basicTests[i],
-          testName: packages[0].testId.name,
+          testCode: test.code,
+          testName: test.name,
           priority: 'Medium',
-          reasons: [basicReasons[i]],
-          packages: packages.map(pkg => ({
-            provider: {
-              code: pkg.providerId.code,
-              name: pkg.providerId.name,
-              website: pkg.providerId.website,
-              phone: pkg.providerId.contactInfo?.phone,
-              email: pkg.providerId.contactInfo?.email
-            },
-            package: {
-              name: pkg.packageName,
-              url: pkg.packageUrl,
-              price: pkg.price,
-              waitTime: pkg.additionalInfo?.waitTime,
-              onlineBooking: pkg.availability?.onlineBooking,
-              locations: pkg.availability?.locations,
-              includes: pkg.additionalInfo?.includes,
-              requirements: pkg.additionalInfo?.requirements
-            },
-            suitability: {
-              highRisk: pkg.specializations?.highRisk,
-              familyHistory: pkg.specializations?.familyHistory,
-              fastTrack: pkg.specializations?.fastTrack
-            }
-          }))
+          reasons: [test.reason]
         });
       }
-    }
+    });
   }
 
+  // Sort by priority (High > Medium > Low)
   return recommendations.sort((a, b) => {
     const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
     return priorityOrder[b.priority] - priorityOrder[a.priority];
   });
 }
 
-// All the existing decision rule functions remain the same
+// =================================================================
+// BUSINESS RULE FUNCTIONS - Determine WHEN to recommend each test
+// =================================================================
+
+/**
+ * Determine if colonoscopy should be recommended
+ */
 function shouldRecommendColonoscopy(profile, riskScore) {
   const { age, familyHistory, previousCancer, diet } = profile;
   
@@ -509,6 +247,9 @@ function shouldRecommendColonoscopy(profile, riskScore) {
   return false;
 }
 
+/**
+ * Calculate colonoscopy priority based on risk factors
+ */
 function calculateColonoscopyPriority(profile, riskScore) {
   const { familyHistory, age, previousCancer } = profile;
   
@@ -521,6 +262,9 @@ function calculateColonoscopyPriority(profile, riskScore) {
   return 'Low';
 }
 
+/**
+ * Generate reasons why colonoscopy is recommended
+ */
 function getColonoscopyReasons(profile, riskScore) {
   const reasons = [];
   const { familyHistory, age, previousCancer, diet } = profile;
@@ -541,6 +285,9 @@ function getColonoscopyReasons(profile, riskScore) {
   return reasons;
 }
 
+/**
+ * Determine if mammogram should be recommended
+ */
 function shouldRecommendMammogram(profile, riskScore) {
   const { age, familyHistory, previousCancer } = profile;
   
@@ -552,6 +299,9 @@ function shouldRecommendMammogram(profile, riskScore) {
   return false;
 }
 
+/**
+ * Calculate mammogram priority based on risk factors
+ */
 function calculateMammogramPriority(profile, riskScore) {
   const { familyHistory, age, previousCancer } = profile;
   
@@ -564,6 +314,9 @@ function calculateMammogramPriority(profile, riskScore) {
   return 'Low';
 }
 
+/**
+ * Generate reasons why mammogram is recommended
+ */
 function getMammogramReasons(profile, riskScore) {
   const reasons = [];
   const { familyHistory, age, previousCancer } = profile;
@@ -584,6 +337,9 @@ function getMammogramReasons(profile, riskScore) {
   return reasons;
 }
 
+/**
+ * Determine if FIT test should be recommended
+ */
 function shouldRecommendFIT(profile, riskScore) {
   const { age, diet, alcohol, familyHistory } = profile;
   
@@ -595,6 +351,9 @@ function shouldRecommendFIT(profile, riskScore) {
   return false;
 }
 
+/**
+ * Calculate FIT test priority based on risk factors
+ */
 function calculateFITPriority(profile, riskScore) {
   const { familyHistory, age } = profile;
   
@@ -605,6 +364,9 @@ function calculateFITPriority(profile, riskScore) {
   return 'Low';
 }
 
+/**
+ * Generate reasons why FIT test is recommended
+ */
 function getFITReasons(profile, riskScore) {
   const reasons = [];
   const { age, diet, alcohol, familyHistory } = profile;
@@ -621,6 +383,9 @@ function getFITReasons(profile, riskScore) {
   return reasons;
 }
 
+/**
+ * Determine if PSA test should be recommended
+ */
 function shouldRecommendPSA(profile, riskScore) {
   const { age, familyHistory } = profile;
   
@@ -630,6 +395,9 @@ function shouldRecommendPSA(profile, riskScore) {
   return false;
 }
 
+/**
+ * Calculate PSA test priority based on risk factors
+ */
 function calculatePSAPriority(profile, riskScore) {
   const { familyHistory, age } = profile;
   
@@ -638,6 +406,9 @@ function calculatePSAPriority(profile, riskScore) {
   return 'Low';
 }
 
+/**
+ * Generate reasons why PSA test is recommended
+ */
 function getPSAReasons(profile, riskScore) {
   const reasons = [];
   const { familyHistory, age } = profile;
@@ -648,6 +419,9 @@ function getPSAReasons(profile, riskScore) {
   return reasons;
 }
 
+/**
+ * Determine if liver screening should be recommended
+ */
 function shouldRecommendLiverScreening(profile, riskScore) {
   const { alcohol } = profile;
   
@@ -656,6 +430,9 @@ function shouldRecommendLiverScreening(profile, riskScore) {
   return false;
 }
 
+/**
+ * Calculate liver screening priority based on risk factors
+ */
 function calculateLiverScreeningPriority(profile, riskScore) {
   const { alcohol } = profile;
   
@@ -664,6 +441,9 @@ function calculateLiverScreeningPriority(profile, riskScore) {
   return 'Low';
 }
 
+/**
+ * Determine if lung screening should be recommended
+ */
 function shouldRecommendLungScreening(profile, riskScore) {
   const { age, smoking } = profile;
   
@@ -677,6 +457,5 @@ function shouldRecommendLungScreening(profile, riskScore) {
 
 module.exports = {
   generateScreeningRecommendations,
-  extractUserProfile,
-  getProviderPackagesForTest
+  extractUserProfile
 };
