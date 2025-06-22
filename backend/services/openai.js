@@ -31,7 +31,7 @@ If the user is anxious, start with a short word of encouragement.
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           "Content-Type": "application/json"
         },
-        timeout: 3000 // 3 seconds
+        timeout: 8000 // 8 seconds
       }
     );
 
