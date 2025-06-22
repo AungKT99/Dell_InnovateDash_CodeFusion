@@ -24,7 +24,7 @@ If the user is anxious, start with a short word of encouragement.
         model: "gpt-4.1-mini",
         messages,
         temperature: 0.5,
-        max_tokens: 200
+        max_tokens: 300
       },
       {
         headers: {
