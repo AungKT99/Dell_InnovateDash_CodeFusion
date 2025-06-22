@@ -15,7 +15,6 @@ import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import FAQ from './components/FAQ';
 import Index from './components/Index';
-import Onboarding from './components/Onboarding';
 import KnowledgeQuiz from './components/KnowledgeQuiz'; 
 import LifestyleQuiz from './components/LifeStyleQuiz';
 
@@ -34,7 +33,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/knowledge_quiz" element={<KnowledgeQuiz />} /> 
-          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/faq" element={<FAQ />} />
 
           {/* Protected routes */}
