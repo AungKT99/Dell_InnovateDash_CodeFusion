@@ -70,80 +70,35 @@ export const FAQS = {
 "good afternoon": "Good afternoon! How can I help you?",
 "good evening": "Good evening! How can I help you?",
 };
-
 export function localFAQAnswer(question) {
   if (!question) return null;
   const q = question.trim().toLowerCase();
 
-  // 1. Cancer types and supported intents
+  // Only answer if the whole question matches an FAQ key (e.g. greetings, thank you, very general cancer queries)
+  if (FAQS[q]) return FAQS[q];
+
+  // Optionally, add simple fuzzy matches for thanks/greetings
+  if (q.includes("thank")) return FAQS["thank you"];
+  if (q.includes("appreciate")) return FAQS["appreciate it"];
+  if (q.includes("hello") || q.includes("hi")) return FAQS["hello"];
+  if (q.includes("good morning")) return FAQS["good morning"];
+  if (q.includes("good afternoon")) return FAQS["good afternoon"];
+  if (q.includes("good evening")) return FAQS["good evening"];
+
+  // Optionally: Handle generic cancer queries, but not any that mention a type
   const cancerTypes = [
     "lung cancer", "liver cancer", "colorectal cancer",
     "breast cancer", "cervical cancer", "prostate cancer"
   ];
-  const intents = [
-    { key: "treatment", prefix: "what is the treatment for " },
-    { key: "prevent",   prefix: "how to prevent " },
-    { key: "symptom",   prefix: "what are the symptoms of " },
+  // If any cancer type is mentioned, skip FAQ
+  if (cancerTypes.some(type => q.includes(type))) return null;
 
-  ];
-
-  // 2. Priority: Match (intent + type), e.g. "treatment of lung cancer"
-  for (let type of cancerTypes) {
-    if (q.includes(type)) {
-      for (let intent of intents) {
-        if (q.includes(intent.key)) {
-          const faqKey = intent.prefix + type;
-          if (FAQS[faqKey]) return FAQS[faqKey];
-        }
-      }
-      // Fallback: Just ask about the type (e.g. "what is lung cancer")
-      const whatKey = "what is " + type;
-      if (FAQS[whatKey]) return FAQS[whatKey];
-    }
-  }
-
-  // 3. General cancer intent (when type not found)
+  // General intent-based (for truly generic "cancer" only)
   if (q.includes("treatment")) return FAQS["what is the treatment for cancer"];
   if (q.includes("prevent"))   return FAQS["how to prevent cancer"];
   if (q.includes("symptom"))   return FAQS["what are the symptoms of cancer"];
   if (q.startsWith("what is cancer")) return FAQS["what is cancer"];
   if (q.includes("cause"))     return FAQS["what causes cancer"];
 
-  // 4. Exact match (whole question matches a FAQ key)
-  if (FAQS[q]) return FAQS[q];
-
-  // 5. Loose (smart) matching on FAQ entries, but skip generic "what is cancer"
-  for (const [faqQ, answer] of Object.entries(FAQS)) {
-    if (faqQ === "what is cancer") continue;
-    const mainWords = faqQ
-      .split(/\s+/)
-      .filter(w =>
-        !["what", "how", "is", "are", "does", "can", "should", "the", "a", "of", "to", "in", "for"].includes(w)
-      );
-    if (mainWords.length && mainWords.every(w => q.includes(w))) {
-      return answer;
-    }
-  }
-
-  // 6. Custom expansion: types/events if you add them in FAQS
-  if (
-    q.includes("types of cancer") ||
-    q.includes("what cancers") ||
-    q.includes("cancer types")
-  ) {
-    if (FAQS["types of cancer"]) return FAQS["types of cancer"];
-  }
-  if (
-    q.includes("scs event") ||
-    q.includes("corporate event") ||
-    q.includes("cancer talk") ||
-    q.includes("invite scs")
-  ) {
-    if (FAQS["scs events"]) return FAQS["scs events"];
-  }
-
-  // 7. Last resort: only return generic answer for "what is cancer" if no other match
-  if (/^\s*what is cancer[\s?]*$/.test(q)) return FAQS["what is cancer"];
-
-  return null; // Let API handle if no FAQ match
+  return null; // Let API answer everything else!
 }
