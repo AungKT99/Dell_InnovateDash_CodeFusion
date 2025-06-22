@@ -180,7 +180,7 @@ const providerTestPackages = [
     providerCode: 'NCCS',
     testCode: 'COLONOSCOPY',
     packageName: 'Comprehensive Colonoscopy Screening',
-    packageUrl: 'https://www.nccs.com.sg/patient-care/conditions-treatments/colonoscopy', // CORRECTED
+    packageUrl: 'https://www.nccs.com.sg/patient-care/specialties-services/oncologic-imaging', 
     price: {
       amount: 800,
       currency: 'SGD',
@@ -210,7 +210,7 @@ const providerTestPackages = [
     providerCode: 'NCCS',
     testCode: 'MAMMOGRAM',
     packageName: 'Digital Mammography Screening',
-    packageUrl: 'https://www.nccs.com.sg/patient-care/cancer-types/pages/cancer-screening.aspx', // CORRECTED
+    packageUrl: 'https://www.nccs.com.sg/patient-care/cancer-types/pages/cancer-screening.aspx', 
     price: {
       amount: 200,
       currency: 'SGD',
