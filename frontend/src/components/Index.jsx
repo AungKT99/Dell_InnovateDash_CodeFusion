@@ -26,19 +26,19 @@ const Index = () => {
 
       <section className="features">
         <div className="feature-card">
-          <img src="/assets/target-icon.png" alt="Personalized Plan Icon" className="feature-img" />
-          <h3>Personalized Plan</h3>
-          <p>Get a 7 day journey tailored to your habits, mindset, and wellness level.</p>
+          <img src="/assets/target-icon.png" alt="Risk Assessment Icon" className="feature-img" />
+          <h3>Risk Assessment</h3>
+          <p>Take our comprehensive lifestyle quiz to understand your personalized cancer risk factors and get actionable insights.</p>
         </div>
         <div className="feature-card">
-          <img src="/assets/mail-icon.png" alt="Emotional Nudges Icon" className="feature-img" />
-          <h3>Emotional Nudges</h3>
-          <p>Stay motivated with reminders that resonate—like family, freedom, and the future.</p>
+          <img src="/assets/mail-icon.png" alt="Knowledge Quiz Icon" className="feature-img" />
+          <h3>Knowledge Quiz</h3>
+          <p>Test your cancer awareness with our interactive quiz and learn essential facts about prevention and early detection.</p>
         </div>
         <div className="feature-card">
-          <img src="/assets/group-icon.png" alt="Group Challenges Icon" className="feature-img" />
-          <h3>Group Challenges</h3>
-          <p>Form wellness circles, invite friends, and unlock achievement badges together.</p>
+          <img src="/assets/group-icon.png" alt="Screening Recommendations Icon" className="feature-img" />
+          <h3>Screening Recommendations</h3>
+          <p>Get personalized screening suggestions based on your risk profile with direct links to healthcare providers.</p>
         </div>
       </section>
 
