@@ -193,6 +193,15 @@ header {
   .logo {
     font-size: 20px;
   }
+
+  .feature-img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
 }
 
 @media (min-width: 769px) {
@@ -318,11 +327,15 @@ header {
 }
 
 .feature-img {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 16px;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 24px;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(176, 0, 78, 0.1));
+  transition: transform 0.3s ease;
+  margin-left: auto;
+  margin-right: auto;
 }
-
 
 .icon {
   font-size: 32px;
@@ -349,13 +362,65 @@ footer {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .hero {
+    padding: 60px 20px;
+  }
+  
   .hero-content {
     flex-direction: column;
     text-align: center;
+    gap: 40px;
+  }
+
+  .hero-text h1 {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .hero-text p {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    margin-top: 24px;
   }
 
   .hero-buttons a {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Hide hero image on mobile */
+  .hero-image {
+    display: none;
+  }
+
+  /* Fix feature cards for mobile */
+  .features {
+    padding: 60px 20px 40px;
+    gap: 20px;
+  }
+
+  .feature-card {
+    width: 100%;
+    max-width: 320px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding: 24px 20px;
+  }
+
+  .feature-card h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   .chat-tab {
@@ -363,5 +428,46 @@ footer {
     bottom: 20px;
     right: 20px;
     border-radius: 50px;
+  }
+}
+
+/* Additional mobile optimizations for smaller screens */
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 16px;
+  }
+
+  .hero-text h1 {
+    font-size: 28px;
+  }
+
+  .hero-text p {
+    font-size: 15px;
+  }
+
+  .hero-buttons a {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  .features {
+    padding: 40px 16px 30px;
+  }
+
+  .feature-card {
+    padding: 20px 16px;
+  }
+
+  .feature-card h3 {
+    font-size: 16px;
+  }
+
+  .feature-card p {
+    font-size: 13px;
+  }
+
+  footer {
+    padding: 16px 20px;
+    font-size: 13px;
   }
 }

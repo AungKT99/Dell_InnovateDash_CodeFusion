@@ -11,32 +11,62 @@ const FAQ = () => {
     {
       id: 1,
       question: "What is Empower+?",
-      answer: "Empower+ is a comprehensive health and wellness platform designed to encourage early cancer screening and promote healthy lifestyle habits. We combine education, community support, and gamification to make health management engaging and accessible."
+      answer: "Empower+ is a comprehensive cancer prevention platform designed to help you understand your cancer risk and take proactive steps toward early detection. We provide personalized risk assessments, screening recommendations, and educational resources to empower your health journey."
     },
     {
       id: 2,
-      question: "How does the risk assessment work?",
-      answer: "Our risk assessment tool evaluates various factors including age, family history, lifestyle choices, and medical history to provide personalized risk scores. This helps identify individuals who would benefit most from early screening."
+      question: "How does the Lifestyle Risk Assessment work?",
+      answer: "Our comprehensive lifestyle quiz evaluates 14 key factors including age, family history, smoking habits, BMI, exercise, diet, and more. Using a weighted scoring system, we calculate your personalized cancer risk percentage and provide actionable insights to help you reduce your risk."
     },
     {
       id: 3,
-      question: "Are my health data and information secure?",
-      answer: "Yes, we take data security very seriously. All personal health information is encrypted and stored securely. We follow strict privacy guidelines and never share your data without explicit consent."
+      question: "What are the different risk levels?",
+      answer: "We categorize risk into three levels: Low Risk (0-30%), Moderate Risk (31-60%), and High Risk (61-100%). Each level comes with specific recommendations and guidance tailored to your situation. Remember, even low-risk individuals benefit from regular screening."
     },
     {
       id: 4,
-      question: "How do I earn badges and rewards?",
-      answer: "You can earn badges by completing challenges, participating in community activities, referring friends, and maintaining healthy habits. Each badge represents a milestone in your wellness journey."
+      question: "How accurate is the risk assessment?",
+      answer: "Our assessment is based on established medical research and risk factors. However, it's not a diagnostic tool and should not replace professional medical advice. Always consult with healthcare providers for personalized medical decisions."
     },
     {
       id: 5,
-      question: "Can I invite friends and family?",
-      answer: "Absolutely! We encourage you to invite friends and family to join Empower+. You can earn special rewards for referrals, and it's a great way to support each other's health goals."
+      question: "What is the Knowledge Quiz?",
+      answer: "The Knowledge Quiz tests your understanding of cancer prevention, early detection, and risk factors. It's an educational tool that helps you learn important facts about cancer while identifying areas where you might need more information."
     },
     {
       id: 6,
-      question: "What if I need to schedule a screening?",
-      answer: "Our platform can help you find nearby screening facilities and schedule appointments. We also provide reminders and support throughout the screening process."
+      question: "How do screening recommendations work?",
+      answer: "Based on your risk assessment results, we provide personalized screening recommendations with direct links to healthcare providers in Singapore. These recommendations consider your age, risk factors, and medical history to suggest appropriate screening tests."
+    },
+    {
+      id: 7,
+      question: "What is the Risk Simulator?",
+      answer: "The Risk Simulator lets you see how changing lifestyle factors (like quitting smoking, improving diet, or increasing exercise) can impact your cancer risk score. It's an interactive tool to help you understand the impact of positive lifestyle changes."
+    },
+    {
+      id: 8,
+      question: "Is my health information secure?",
+      answer: "Yes, we take data security very seriously. All personal health information is encrypted and stored securely. We follow strict privacy guidelines and never share your data without explicit consent. Your information is used solely to provide personalized health insights."
+    },
+    {
+      id: 9,
+      question: "Do I need to create an account?",
+      answer: "Yes, creating an account allows us to save your assessment results, track your progress, and provide personalized recommendations. Your data is securely stored and you can access your dashboard anytime to review your results and recommendations."
+    },
+    {
+      id: 10,
+      question: "What if I get a high-risk result?",
+      answer: "A high-risk result doesn't mean you have cancer—it indicates you may benefit from more frequent screening and lifestyle modifications. We'll provide specific recommendations and connect you with healthcare providers. Always consult with a medical professional for personalized advice."
+    },
+    {
+      id: 11,
+      question: "How often should I retake the assessment?",
+      answer: "We recommend retaking the assessment annually or whenever you experience significant lifestyle changes (like quitting smoking, major weight changes, or new family history). Regular reassessment helps track your progress and adjust recommendations accordingly."
+    },
+    {
+      id: 12,
+      question: "Can I share my results with my doctor?",
+      answer: "Absolutely! We encourage you to share your assessment results and screening recommendations with your healthcare provider. This information can help inform your medical discussions and screening decisions."
     }
   ];
 
