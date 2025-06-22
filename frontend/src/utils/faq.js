@@ -1,7 +1,5 @@
 // src/utils/faq.js
 
-// src/utils/faq.js
-
 export const FAQS = {
   // General
   "what is cancer": "Cancer is when some cells in the body start to grow uncontrollably. Early detection saves lives!",
@@ -55,67 +53,97 @@ export const FAQS = {
   "what is palliative care": "Palliative care helps improve quality of life for people with serious illness, managing symptoms and offering emotional support.",
   "can i work during cancer treatment": "Many people can work during treatment, but it depends on your health and treatment type. Discuss with your doctor and employer.",
   "how can i support a friend with cancer": "Offer a listening ear, practical help, and encouragement. Just being there makes a big difference.",
+// Polite conversational responses
+"thank you": "You're very welcome! If you have more questions about cancer or screenings, just ask.",
+"thanks": "Happy to help! If you have any more questions, feel free to ask.",
+"thank you so much": "You're most welcome! Wishing you good health.",
+"thank you!": "You're welcome! If you need anything else, I'm here.",
+"thanks!": "You're welcome!",
+"thank u": "Glad I could help!",
+"appreciate it": "I'm happy to assist you.",
+"appreciate your help": "You're very welcome!",
 
+// Greetings (optional, for friendlier chatbot)
+"hello": "Hello! How can I assist you with cancer information today?",
+"hi": "Hi there! Do you have a question about cancer or screening?",
+"good morning": "Good morning! How can I help you?",
+"good afternoon": "Good afternoon! How can I help you?",
+"good evening": "Good evening! How can I help you?",
 };
 
-  
-  // Smarter local FAQ answer finder
-  export function localFAQAnswer(question) {
-    if (!question) return null;
-    const q = question.trim().toLowerCase();
-  
-    // 1. Exact match
-    if (FAQS[q]) return FAQS[q];
-  
-    // // 2. Major specific cancers — direct phrase matching
-    // if (q.includes("lung cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent lung cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of lung cancer"];
-    //   return FAQS["what is lung cancer"];
-    // }
-    // if (q.includes("liver cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent liver cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of liver cancer"];
-    //   return FAQS["what is liver cancer"];
-    // }
-    // if (q.includes("colorectal cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent colorectal cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of colorectal cancer"];
-    //   return FAQS["what is colorectal cancer"];
-    // }
-    // if (q.includes("breast cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent breast cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of breast cancer"];
-    //   return FAQS["what is breast cancer"];
-    // }
-    // if (q.includes("cervical cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent cervical cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of cervical cancer"];
-    //   return FAQS["what is cervical cancer"];
-    // }
-    // if (q.includes("prostate cancer")) {
-    //   if (q.includes("prevent")) return FAQS["how to prevent prostate cancer"];
-    //   if (q.includes("symptom")) return FAQS["what are the symptoms of prostate cancer"];
-    //   return FAQS["what is prostate cancer"];
-    // }
-  
-    // // 3. More general fuzzy rules for cancer
-    // if (/^what is cancer\b/.test(q)) return FAQS["what is cancer"];
-    // if (/(cause|why).*cancer/.test(q)) return FAQS["what causes cancer"];
-    // if (/prevent.*cancer/.test(q)) return FAQS["how to prevent cancer"];
-    // if (/symptom.*cancer/.test(q)) return FAQS["what are the symptoms of cancer"];
-    // if (/screen/.test(q)) return FAQS["how often should i get screened"];
-  
-    // 4. Try smart loose matching on other FAQ entries (from before)
-    for (const [faqQ, answer] of Object.entries(FAQS)) {
-      // Split FAQ question into keywords for loose matching
-      const mainWords = faqQ.split(/\s+/).filter(w =>
-        !["what", "how", "is", "are", "does", "can", "should", "the", "a", "of", "to", "in"].includes(w)
-      );
-      if (mainWords.every(w => q.includes(w))) return answer;
+export function localFAQAnswer(question) {
+  if (!question) return null;
+  const q = question.trim().toLowerCase();
+
+  // 1. Cancer types and supported intents
+  const cancerTypes = [
+    "lung cancer", "liver cancer", "colorectal cancer",
+    "breast cancer", "cervical cancer", "prostate cancer"
+  ];
+  const intents = [
+    { key: "treatment", prefix: "what is the treatment for " },
+    { key: "prevent",   prefix: "how to prevent " },
+    { key: "symptom",   prefix: "what are the symptoms of " },
+
+  ];
+
+  // 2. Priority: Match (intent + type), e.g. "treatment of lung cancer"
+  for (let type of cancerTypes) {
+    if (q.includes(type)) {
+      for (let intent of intents) {
+        if (q.includes(intent.key)) {
+          const faqKey = intent.prefix + type;
+          if (FAQS[faqKey]) return FAQS[faqKey];
+        }
+      }
+      // Fallback: Just ask about the type (e.g. "what is lung cancer")
+      const whatKey = "what is " + type;
+      if (FAQS[whatKey]) return FAQS[whatKey];
     }
-  
-    // 5. Not found
-    return null;
   }
-  
+
+  // 3. General cancer intent (when type not found)
+  if (q.includes("treatment")) return FAQS["what is the treatment for cancer"];
+  if (q.includes("prevent"))   return FAQS["how to prevent cancer"];
+  if (q.includes("symptom"))   return FAQS["what are the symptoms of cancer"];
+  if (q.startsWith("what is cancer")) return FAQS["what is cancer"];
+  if (q.includes("cause"))     return FAQS["what causes cancer"];
+
+  // 4. Exact match (whole question matches a FAQ key)
+  if (FAQS[q]) return FAQS[q];
+
+  // 5. Loose (smart) matching on FAQ entries, but skip generic "what is cancer"
+  for (const [faqQ, answer] of Object.entries(FAQS)) {
+    if (faqQ === "what is cancer") continue;
+    const mainWords = faqQ
+      .split(/\s+/)
+      .filter(w =>
+        !["what", "how", "is", "are", "does", "can", "should", "the", "a", "of", "to", "in", "for"].includes(w)
+      );
+    if (mainWords.length && mainWords.every(w => q.includes(w))) {
+      return answer;
+    }
+  }
+
+  // 6. Custom expansion: types/events if you add them in FAQS
+  if (
+    q.includes("types of cancer") ||
+    q.includes("what cancers") ||
+    q.includes("cancer types")
+  ) {
+    if (FAQS["types of cancer"]) return FAQS["types of cancer"];
+  }
+  if (
+    q.includes("scs event") ||
+    q.includes("corporate event") ||
+    q.includes("cancer talk") ||
+    q.includes("invite scs")
+  ) {
+    if (FAQS["scs events"]) return FAQS["scs events"];
+  }
+
+  // 7. Last resort: only return generic answer for "what is cancer" if no other match
+  if (/^\s*what is cancer[\s?]*$/.test(q)) return FAQS["what is cancer"];
+
+  return null; // Let API handle if no FAQ match
+}
