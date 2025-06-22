@@ -62,8 +62,6 @@ const Profile = () => {
   );
 };
 
-<<<<<<< HEAD
+
 export default Profile;
-=======
-export default Profile; 
->>>>>>> harshitha/aichatbot
+
