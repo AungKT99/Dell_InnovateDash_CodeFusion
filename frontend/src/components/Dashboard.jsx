@@ -165,7 +165,8 @@ const CancerRiskAssessment = () => {
           </p>
           <button 
             onClick={() => navigate('/lifestyle_quiz')}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-flex items-center px-6 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-semibold"
+            style={{ backgroundColor: '#A50050' }}
           >
             Start Lifestyle Quiz
             <ChevronRight size={16} className="ml-2" />
@@ -413,19 +414,22 @@ const ScreeningOverview = () => {
   // Show "take assessment first" message
   if (error === 'quiz_required') {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Screening Recommendations</h2>
-          <ClipboardList className="w-6 h-6 text-blue-600" />
-        </div>
-        
-        <div className="text-center py-8">
-          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-8 h-8 text-orange-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Take Assessment First</h3>
-        </div>
-      </div>
+     <div className="cancer-risk-card">
+             <div className="risk-content" style={{ padding: '3rem', textAlign: 'center' }}>
+               <Target className="mx-auto mb-4 text-blue-500" size={48} />
+               <h3 className="text-lg font-semibold text-gray-700 mb-2">Complete Your Assessment First</h3>
+               <p className="text-gray-600 mb-4">
+                 You need to complete your lifestyle assessment to view Screening Recommendation.
+               </p>
+               {/* <button 
+                 onClick={() => navigate('/lifestyle_quiz')}
+                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+               >
+                 Start Lifestyle Quiz
+                 <ChevronRight size={16} className="ml-2" />
+               </button> */}
+             </div>
+           </div>
     );
   }
 

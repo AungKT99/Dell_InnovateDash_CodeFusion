@@ -34,6 +34,7 @@ const Profile = () => {
           <button
             onClick={handleLogout}
             className="logout-button"
+            style={{ backgroundColor: '#A50050' }}
           >
             Log Out
           </button>
