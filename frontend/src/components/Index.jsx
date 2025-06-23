@@ -19,6 +19,7 @@ const Index = () => {
             <p>Empower+ guides you with personalized steps, emotional motivation, and social support. Start transforming your health today.</p>
             <div className="hero-buttons">
               <Link to="/LifeStyleQuiz" className="start-btn">Start My Journey</Link>
+              <Link to="/knowledge_quiz" className="start-btn">Check My Knowledge</Link>
               <Link to="/faq" className="learn-btn">Learn More</Link>
             </div>
           </div>
@@ -28,22 +29,33 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Three Cards */}
       <section className="features">
-        <div className="feature-card">
-          <img src="/assets/target-icon.png" alt="Risk Assessment Icon" className="feature-img" />
-          <h3>Risk Assessment</h3>
-          <p>Take our comprehensive lifestyle quiz to understand your personalized cancer risk factors and get actionable insights.</p>
-        </div>
-        <div className="feature-card">
-          <img src="/assets/mail-icon.png" alt="Knowledge Quiz Icon" className="feature-img" />
-          <h3>Knowledge Quiz</h3>
-          <p>Test your cancer awareness with our interactive quiz and learn essential facts about prevention and early detection.</p>
-        </div>
-        <div className="feature-card">
-          <img src="/assets/group-icon.png" alt="Screening Recommendations Icon" className="feature-img" />
-          <h3>Screening Recommendations</h3>
-          <p>Get personalized screening suggestions based on your risk profile with direct links to healthcare providers.</p>
-        </div>
+
+       
+        <Link to="/dashboard" className="feature-card-link">
+          <div className="feature-card">
+            <img src="/assets/target-icon.png" alt="Risk Assessment Icon" className="feature-img" />
+            <h3>HealthRisk+</h3>
+            <p>Take our comprehensive lifestyle quiz to understand your personalized cancer risk factors and get actionable insights.</p>
+          </div>
+        </Link>
+
+        <Link to="/knowledge_quiz" className="feature-card-link">
+          <div className="feature-card">
+            <img src="/assets/mail-icon.png" alt="Knowledge Quiz Icon" className="feature-img" />
+            <h3>KnowledgeCheck</h3>
+            <p>Test your cancer awareness with our interactive quiz and learn essential facts about prevention and early detection.</p>
+          </div>
+        </Link>
+
+        <Link to="/dashboard" className="feature-card-link">
+          <div className="feature-card">
+            <img src="/assets/group-icon.png" alt="Screening Recommendations Icon" className="feature-img" />
+            <h3>Screening Recommendations</h3>
+            <p>Get personalized screening suggestions based on your risk profile with direct links to healthcare providers.</p>
+          </div>
+        </Link>
       </section>
 
       <footer>

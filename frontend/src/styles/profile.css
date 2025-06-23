@@ -1,8 +1,17 @@
 
-/* --- Base Profile Page Styles --- */
+
+
+.dashboard-container {
+  background: linear-gradient(to right, #ffe9f0, #f3e1ff);
+  width: 100%;
+  max-width: 1350px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
 .profile-page {
   padding: 2rem 1rem; /* Added vertical padding */
-  background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+  background: linear-gradient(to right, #ffe9f0, #f3e1ff);
   min-height: calc(100vh - 80px); /* Fill screen height minus header */
   display: flex;
   align-items: center;

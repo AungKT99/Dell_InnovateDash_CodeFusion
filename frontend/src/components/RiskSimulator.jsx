@@ -342,15 +342,15 @@ const RiskSimulator = () => {
           <Target className="mx-auto mb-4 text-blue-500" size={48} />
           <h3 className="text-lg font-semibold text-gray-700 mb-2">Complete Your Assessment First</h3>
           <p className="text-gray-600 mb-4">
-            You need to complete your lifestyle assessment before using the risk simulator
+            You need to complete your lifestyle assessment before using the Risk Simulator
           </p>
-          <button 
+          {/* <button 
             onClick={() => navigate('/lifestyle_quiz')}
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
           >
             Start Lifestyle Quiz
             <ChevronRight size={16} className="ml-2" />
-          </button>
+          </button> */}
         </div>
       </div>
     );
