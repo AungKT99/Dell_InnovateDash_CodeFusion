@@ -25,7 +25,7 @@ app.set('trust proxy', true);
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Your React app URL
+  origin: process.env.CLIENT_URL, // Your React app URL
   credentials: true
 }));
 
