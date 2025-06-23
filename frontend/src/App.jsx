@@ -63,8 +63,17 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+           <Route 
+            path="/chatbot" 
+            element={
+              <ProtectedRoute>
+                <ChatbotPage />
+              </ProtectedRoute>
+            } 
+          />
           
-          <Route path="/chatbot" element={<ChatbotPage />} />
+          {/* <Route path="/chatbot" element={<ChatbotPage />} /> */}
 
           
           {/* Catch-all: if unknown route, redirect to dashboard */}
