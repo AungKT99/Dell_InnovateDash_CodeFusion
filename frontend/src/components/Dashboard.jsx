@@ -324,7 +324,7 @@ const CancerRiskAssessment = () => {
         {/* Urgency message */}
         <div className="risk-urgency">
           <p className="urgency-text">
-            <AlertTriangle className="urgency-icon" />
+            <AlertTriangle className="urgency-icon w-10 h-10" />
             {uiText.urgencyMessage || 'Early screening can significantly reduce your risk'}
           </p>
         </div>
@@ -333,13 +333,24 @@ const CancerRiskAssessment = () => {
   );
 };
 
+//helper function for ScreeningOverview component
+const getPriorityClass = (priority) => {
+  return `priority-${priority?.toLowerCase() || 'general'}`;
+};
+
+// Fixed ScreeningOverview - combines your working logic with colorful styling
 const ScreeningOverview = () => {
   const [screeningData, setScreeningData] = useState(null);
-  const [allAvailableScreenings, setAllAvailableScreenings] = useState(null);
+  const [allAvailableScreenings, setAllAvailableScreenings] = useState(null); // Keep as null like your working version
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAllScreenings, setShowAllScreenings] = useState(false);
   const [loadingAllScreenings, setLoadingAllScreenings] = useState(false);
+
+  // Helper function for priority-based CSS classes
+  const getPriorityClass = (priority) => {
+    return `priority-${priority?.toLowerCase() || 'general'}`;
+  };
 
   const fetchScreeningData = async () => {
     try {
@@ -364,6 +375,7 @@ const ScreeningOverview = () => {
     }
   };
 
+  // Your working fetchAllAvailableScreenings function
   const fetchAllAvailableScreenings = async () => {
     try {
       setLoadingAllScreenings(true);
@@ -372,7 +384,7 @@ const ScreeningOverview = () => {
       const response = await getAllAvailableScreenings();
       
       if (response.success) {
-        setAllAvailableScreenings(response.data.screeningTests || []);
+        setAllAvailableScreenings(response.data.screeningTests || []); // Your working path
       } else {
         console.error('Failed to fetch all available screenings:', response.message);
         setAllAvailableScreenings([]);
@@ -385,6 +397,7 @@ const ScreeningOverview = () => {
     }
   };
 
+  // Your working handleShowAllScreenings function
   const handleShowAllScreenings = async () => {
     if (!showAllScreenings && !allAvailableScreenings) {
       await fetchAllAvailableScreenings();
@@ -421,13 +434,6 @@ const ScreeningOverview = () => {
                <p className="text-gray-600 mb-4">
                  You need to complete your lifestyle assessment to view Screening Recommendation.
                </p>
-               {/* <button 
-                 onClick={() => navigate('/lifestyle_quiz')}
-                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-               >
-                 Start Lifestyle Quiz
-                 <ChevronRight size={16} className="ml-2" />
-               </button> */}
              </div>
            </div>
     );
@@ -472,131 +478,128 @@ const ScreeningOverview = () => {
     : sortedRecommendedItems;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="text-center border-b border-gray-200 pb-4 mb-6">
-        <h2 className="text-xl font-bold text-gray-800">YOUR SCREENING CHECKLIST</h2>
+    <div className="bg-white rounded-xl shadow-lg h-full overflow-hidden">
+      {/* 🎨 NEW: Colored Header */}
+      <div className="screening-header">
+        <h2 className="screening-title">YOUR SCREENING CHECKLIST</h2>
       </div>
 
-      {/* Screening Items or No Recommendations Message */}
-      <div className="space-y-4">
-        {sortedRecommendedItems.length > 0 ? (
-          // Show recommended items
-          displayItems.map((item, index) => (
-            <ScreeningCard 
-              key={`${item.testName}-${index}`} 
-              item={item} 
-              isRecommended={index < sortedRecommendedItems.length}
-            />
-          ))
-        ) : !showAllScreenings ? (
-          // Show message when no recommendations
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ClipboardCheck className="w-8 h-8 text-green-600" />
+      <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100% - 120px)' }}>
+        {/* Screening Items or No Recommendations Message */}
+        <div className="space-y-4">
+          {sortedRecommendedItems.length > 0 ? (
+            // Show recommended items
+            displayItems.map((item, index) => (
+              <ScreeningCard 
+                key={`${item.testName}-${index}`} 
+                item={item} 
+                isRecommended={index < sortedRecommendedItems.length}
+              />
+            ))
+          ) : !showAllScreenings ? (
+            // Show message when no recommendations
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ClipboardCheck className="w-8 h-8 text-green-600" />
+              </div>
+              <p className="text-gray-600 mb-4">
+                No urgent screenings are needed based on your current risk, but we strongly recommend regular cancer screenings 
+                for early detection.
+              </p>
+              <p className="text-sm text-gray-500">
+                You can view all available screening options below.
+              </p>
             </div>
-            <p className="text-gray-600 mb-4">
-              No urgent screenings are needed based on your current risk, but we strongly recommend regular cancer screenings 
-              for early detection.
-            </p>
-            <p className="text-sm text-gray-500">
-              You can view all available screening options below.
-            </p>
-          </div>
-        ) : (
-          // Show all available screenings when requested
-          allAvailableScreenings.map((item, index) => (
-            <ScreeningCard 
-              key={`${item.testName}-${index}`} 
-              item={item} 
-              isRecommended={false}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Loading additional screenings */}
-      {loadingAllScreenings && (
-        <div className="mt-4 text-center">
-          <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
-          <span className="text-sm text-gray-600">Loading additional screenings...</span>
+          ) : (
+            // Show all available screenings when requested
+            (allAvailableScreenings || []).map((item, index) => (
+              <ScreeningCard 
+                key={`${item.testName}-${index}`} 
+                item={item} 
+                isRecommended={false}
+              />
+            ))
+          )}
         </div>
-      )}
 
-      {/* Show More Button - Show all screening tests toggle */}
-      <div className="mt-6 text-center">
-        {sortedRecommendedItems.length > 0 ? (
-          // User HAS recommendations - show toggle button
-          <button 
-            onClick={handleShowAllScreenings}
-            disabled={loadingAllScreenings}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            {showAllScreenings 
-              ? 'Show Recommended Only' 
-              : 'Display All Available Screenings'
-            }
-          </button>
-        ) : (
-          // User has NO recommendations - show button to see all available
-          <button 
-            onClick={handleShowAllScreenings}
-            disabled={loadingAllScreenings}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium"
-          >
-            {loadingAllScreenings ? 'Loading...' : 'View All Available Screenings'}
-          </button>
+        {/* Loading additional screenings */}
+        {loadingAllScreenings && (
+          <div className="mt-4 text-center">
+            <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+            <span className="text-sm text-gray-600">Loading additional screenings...</span>
+          </div>
         )}
+
+        {/* Show More Button - Show all screening tests toggle */}
+        <div className="mt-6 text-center">
+          {sortedRecommendedItems.length > 0 ? (
+            // User HAS recommendations - show toggle button
+            <button 
+              onClick={handleShowAllScreenings}
+              disabled={loadingAllScreenings}
+              className="main-action-button"
+            >
+              {showAllScreenings 
+                ? 'Show Recommended Only' 
+                : 'Display All Available Screenings'
+              }
+            </button>
+          ) : (
+            // User has NO recommendations - show button to see all available
+            <button 
+              onClick={handleShowAllScreenings}
+              disabled={loadingAllScreenings}
+              className="main-action-button"
+            >
+              {loadingAllScreenings ? 'Loading...' : 'View All Available Screenings'}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-200 text-center">
-        <div className="text-sm text-gray-600">Contact Info to SCS</div>
+      {/* 🎨 NEW: Styled Footer */}
+      <div className="screening-footer">
+        <div className="text-sm text-gray-600">📞 Singapore Cancer Society • Contact for Support</div>
       </div>
     </div>
   );
 };
 
+// 🎨 NEW: Updated ScreeningCard with colors
 const ScreeningCard = ({ item, isRecommended }) => {
   const getPriorityIcon = (priority) => {
     switch (priority?.toLowerCase()) {
       case 'urgent':
       case 'high':
-        return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+        return <AlertTriangle className="w-4 h-4" />;
       case 'needed':
       case 'medium':
-        return <Activity className="w-4 h-4 text-yellow-500" />;
+        return <Activity className="w-4 h-4" />;
       default:
-        return <ClipboardList className="w-4 h-4 text-blue-500" />;
+        return <ClipboardList className="w-4 h-4" />;
     }
   };
 
-  const getPriorityColor = (priority) => {
-    // Only apply colored backgrounds for recommended tests
-    if (!isRecommended) {
-      return 'border-gray-200 bg-white'; // Plain white for non-recommended
-    }
-    
-    switch (priority?.toLowerCase()) {
-      case 'urgent':
-      case 'high':
-        return 'border-orange-200 bg-orange-50';
-      case 'needed':
-      case 'medium':
-        return 'border-yellow-200 bg-yellow-50';
-      default:
-        return 'border-blue-200 bg-blue-50';
-    }
+  const getPriorityClass = (priority) => {
+    return `priority-${priority?.toLowerCase() || 'general'}`;
   };
 
   return (
-    <div className={`border rounded-lg p-4 ${getPriorityColor(item.priority)}`}>
+    <div className={`screening-card ${getPriorityClass(item.priority)}`}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        {getPriorityIcon(item.priority)}
+        {/* 🎨 NEW: Colored Priority Icon */}
+        <div className={`priority-icon-colored ${item.priority?.toLowerCase() || 'general'}`}>
+          {getPriorityIcon(item.priority)}
+        </div>
+        
         <h3 className="font-semibold text-gray-900">
           {item.testName?.toUpperCase()}
-          {isRecommended && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">RECOMMENDED</span>}
+          {isRecommended && (
+            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              RECOMMENDED
+            </span>
+          )}
         </h3>
       </div>
       
@@ -613,19 +616,19 @@ const ScreeningCard = ({ item, isRecommended }) => {
         <span className="text-sm text-gray-600">{item.whyText}</span>
       </div>
 
-      {/* Provider buttons */}
+      {/* 🎨 NEW: Styled Provider buttons */}
       <div className="flex flex-wrap gap-2 mb-2">
         {item.providers?.slice(0, 3).map((provider, idx) => (
           <button
             key={idx}
-            className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+            className="provider-button"
             onClick={() => window.open(provider.url, '_blank')}
           >
             [{provider.code}]
           </button>
         ))}
         {item.providers?.length > 3 && (
-          <button className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 transition-colors">
+          <button className="provider-button">
             [+{item.providers.length - 3} more]
           </button>
         )}
@@ -633,7 +636,6 @@ const ScreeningCard = ({ item, isRecommended }) => {
     </div>
   );
 };
-
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
