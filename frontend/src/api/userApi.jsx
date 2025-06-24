@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Create axios instance with base URL - REMOVED /api from here
+// Create axios instance with base URL
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || '',
 });
 
 // Add token to requests automatically
@@ -81,5 +81,4 @@ export const authAPI = {
 };
 
 // Export the configured axios instance for other API calls
-
 export default API;

@@ -1,14 +1,35 @@
+// frontend/src/api/quizApi.jsx
 import axios from 'axios';
 
-// Create axios instance with default config (following your project pattern)
+// Create axios instance with default config
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || '',
 });
 
-// Add /api/quiz to the requests since baseURL is just the main server URL
+// Add token to requests automatically
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token expiration
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const QUIZ_BASE = '/api/quiz';
 
-// Get active quiz for public access
+// Get active quiz (no authentication required)
 export const getActiveQuiz = async () => {
   try {
     const response = await API.get(`${QUIZ_BASE}/active`);
@@ -17,13 +38,13 @@ export const getActiveQuiz = async () => {
     console.error('Error fetching active quiz:', error.response?.data || error.message);
     throw {
       success: false,
-      message: error.response?.data?.message || 'Failed to fetch quiz',
+      message: error.response?.data?.message || 'Failed to fetch active quiz',
       status: error.response?.status
     };
   }
 };
 
-// Submit quiz attempt (works for both anonymous and logged-in users)
+// Submit quiz attempt (no authentication required)
 export const submitQuizAttempt = async (quizData) => {
   try {
     const response = await API.post(`${QUIZ_BASE}/submit`, quizData);
@@ -38,26 +59,37 @@ export const submitQuizAttempt = async (quizData) => {
   }
 };
 
-// Get quiz analytics (admin only)
-export const getQuizAnalytics = async (quizId, dateRange = {}) => {
+// Link quiz attempt to user (requires authentication)
+export const linkQuizToUser = async (quizData) => {
   try {
-    const params = {};
-    if (dateRange.startDate) params.startDate = dateRange.startDate;
-    if (dateRange.endDate) params.endDate = dateRange.endDate;
-    
-    const response = await API.get(`${QUIZ_BASE}/${quizId}/analytics`, { params });
+    const response = await API.post(`${QUIZ_BASE}/link-attempt`, quizData);
     return response.data;
   } catch (error) {
-    console.error('Error fetching quiz analytics:', error.response?.data || error.message);
+    console.error('Error linking quiz to user:', error.response?.data || error.message);
     throw {
       success: false,
-      message: error.response?.data?.message || 'Failed to fetch analytics',
+      message: error.response?.data?.message || 'Failed to link quiz to user',
       status: error.response?.status
     };
   }
 };
 
-// Create new quiz (admin only)
+// Get quiz analytics (requires authentication/admin)
+export const getQuizAnalytics = async (quizId) => {
+  try {
+    const response = await API.get(`${QUIZ_BASE}/${quizId}/analytics`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching quiz analytics:', error.response?.data || error.message);
+    throw {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch quiz analytics',
+      status: error.response?.status
+    };
+  }
+};
+
+// Create quiz (requires authentication/admin)
 export const createQuiz = async (quizData) => {
   try {
     const response = await API.post(`${QUIZ_BASE}/create`, quizData);
@@ -72,22 +104,10 @@ export const createQuiz = async (quizData) => {
   }
 };
 
-// Helper function to track quiz completion for conversion analytics
-export const trackQuizCompletion = async (attemptId) => {
-  try {
-    const response = await API.patch(`${QUIZ_BASE}/attempt/${attemptId}/signup`);
-    return response.data;
-  } catch (error) {
-    console.error('Error tracking quiz completion:', error.response?.data || error.message);
-    // Don't throw error as this is for analytics only
-    return { success: false };
-  }
-};
-
 export default {
   getActiveQuiz,
   submitQuizAttempt,
+  linkQuizToUser,
   getQuizAnalytics,
-  createQuiz,
-  trackQuizCompletion
+  createQuiz
 };

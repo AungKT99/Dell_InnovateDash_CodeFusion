@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || '',
 });
 
 // Add token to requests automatically
@@ -104,11 +104,10 @@ export const getAllAvailableScreenings = async () => {
   }
 };
 
-// Update the export at the bottom to include the new function
 export default {
   getScreeningChecklist,
   getScreeningRecommendations,
-  getTestProviders,
   getTestInfo,
-  getAllAvailableScreenings  // Add this line
+  getTestProviders,
+  getAllAvailableScreenings
 };

@@ -1,18 +1,19 @@
-services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "4173:4173"  
-    env_file:
-      - ./frontend/.env
-    restart: always
+# This file is for reference only - not used in ECS deployment
+# ECS will use individual container images from DockerHub
 
+services:
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
     ports:
       - "8000:8000"
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - frontend
-    restart: always
+    # Environment variables will be set in ECS Task Definition
+    
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ""  # Will be set during ECS build
+    ports:
+      - "4173:4173"
+    # No environment variables needed at runtime
