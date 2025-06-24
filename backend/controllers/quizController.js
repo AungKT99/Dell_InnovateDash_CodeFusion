@@ -110,18 +110,15 @@ const submitQuizAttempt = async (req, res) => {
     await attempt.save();
 
     // Return results with explanations
-    const results = {
-      score: totalScore,
-      correctAnswers,
-      totalQuestions: quiz.questions.length,
-      knowledgeLevel,
-      explanations: quiz.questions
-        .filter(q => answers.find(a => a.qid === q.id))
-        .map(q => {
+    const answeredQuestionIds = answers.map(a => a.qid);
+    const explanations = quiz.questions
+      .filter(q => answeredQuestionIds.includes(q.id))
+      .map(q => {
         const userAnswer = answers.find(a => a.qid === q.id);
-        const selectedOption = userAnswer ? 
-          q.options.find(opt => opt.id === userAnswer.optionId) : null;
-        
+        const selectedOption = userAnswer
+          ? q.options.find(opt => opt.id === userAnswer.optionId)
+          : null;
+
         return {
           questionId: q.id,
           questionText: q.text,
@@ -129,7 +126,14 @@ const submitQuizAttempt = async (req, res) => {
           isCorrect: selectedOption ? selectedOption.isCorrect : false,
           explanation: q.explanation
         };
-      })
+      });
+
+    const results = {
+      score: totalScore,
+      correctAnswers,
+      totalQuestions: answers.length, // exactly how many they answered
+      knowledgeLevel,
+      explanations
     };
 
     res.status(201).json({
